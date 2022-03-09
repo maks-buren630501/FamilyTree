@@ -6,12 +6,7 @@
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">{{route.meta.title}}</h2>
         <p class="mt-2 text-center text-sm text-gray-600">
           Или
-          <router-link
-            :to="{name: route.meta.link}"
-            class="font-medium text-indigo-600 hover:text-indigo-500"
-          >
-            {{route.meta.textLink}}
-          </router-link>
+          <nav-link :to="{name: route.meta.link}">{{route.meta.textLink}}</nav-link>
         </p>
       </div>
       <router-view></router-view>
@@ -20,7 +15,9 @@
 </template>
 
 <script setup>
-import { useRouter, useRoute } from 'vue-router'
+import {useRoute} from 'vue-router';
+import NavLink from "../components/UI/Link/NavLink.vue";
+
 const route = useRoute()
 </script>
 

@@ -21,7 +21,7 @@
     </div>
 
     <div class="flex items-center justify-end text-sm">
-      <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Забыли свой пароль?</a>
+      <nav-link :to="{name: 'Registration'}">Забыли свой пароль?</nav-link>
     </div>
 
     <div>
@@ -33,6 +33,7 @@
 <script setup>
 import TextField from "../UI/Input/TextField.vue";
 import Btn from "../UI/Button/Btn.vue";
+import NavLink from "../UI/Link/NavLink.vue";
 </script>
 
 <style scoped>
