@@ -1,13 +1,8 @@
 from fastapi import FastAPI
 
+from backend.login.urls import app_login
+from backend.tree.urls import app_tree
+
 app = FastAPI()
-
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+app.mount('login', app_login)
+app.mount('tree', app_tree)
