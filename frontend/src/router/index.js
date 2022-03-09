@@ -1,7 +1,7 @@
 import { createWebHistory, createRouter } from "vue-router";
-import Authorization from '../views/Authorization.vue'
-import LoginForm from '../components/Authorization/LoginForm.vue'
-import RegistrationForm from '../components/Authorization/RegistrationForm.vue'
+import Authorization from '../views/Authorization.vue';
+import LoginForm from '../components/Authorization/LoginForm.vue';
+import RegistrationForm from '../components/Authorization/RegistrationForm.vue';
 
 const routes = [
     {
