@@ -1,7 +1,7 @@
 import smtplib
 
 from backend.core.additional import singleton
-from backend.core.email.constant import MAIL_USER, MAIL_PASSWORD
+from backend.core.email.config import mail_auth
 
 
 @singleton
@@ -24,5 +24,5 @@ class Mail:
         self.server.close()
 
 
-mail = Mail(MAIL_USER, MAIL_PASSWORD)
+mail = Mail(mail_auth.user, mail_auth.password)
 

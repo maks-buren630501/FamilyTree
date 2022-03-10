@@ -1,9 +1,10 @@
 from pymongo import MongoClient
 
-from backend.core.database.constant import CONNECTION_URL
+from backend.core.database.config import mongo_url
 
-client = MongoClient(CONNECTION_URL)
+client = MongoClient(mongo_url)
 database = client.get_database()
+
 
 
 
