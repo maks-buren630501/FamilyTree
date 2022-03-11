@@ -7,16 +7,16 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from backend.authentication.config import get_users_url_config, get_user_url_config, create_user_url_config, \
     update_user_url_config
 from backend.authentication.crud import UserCrud
-from backend.authentication.schemas import UserSchemaGet, UserSchemaCreate, PyObjectId, UpdateUserSchema
-from backend.core.exception.base_exeption import UniqueIndexException, ObjectNotExistException
-from backend.core.exception.http_exeption import NotUniqueIndex, ObjectNotExist
+from backend.authentication.schemas import UserSchemaGet, UserSchemaCreate, UpdateUserSchema
+from backend.core.exception.base_exeption import UniqueIndexException
+from backend.core.exception.http_exeption import NotUniqueIndex
 from backend.core.middleware import error_handler_middleware
 
 app_authentication = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_handler_middleware)])
 
 
 @app_authentication.get('/{user_id}', **get_user_url_config.dict())
-async def get_user(user_id: PyObjectId) -> UserSchemaGet | Response:
+async def get_user(user_id: str) -> UserSchemaGet | Response:
     user = await UserCrud.get(user_id)
     if user:
         return UserSchemaGet(**user)
@@ -43,8 +43,19 @@ async def create_user(user: UserSchemaCreate) -> str:
 async def update_user(user_id: PyObjectId, user: UpdateUserSchema) -> int:
     user = {k: v for k, v in user.dict().items() if v is not None}
     try:
-        return await UserCrud.update(user_id, user)
+        update_count = await UserCrud.update(user_id, user)
+        if update_count:
+            return update_count
+        else:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
     except UniqueIndexException as e:
         raise NotUniqueIndex(e)
-    except ObjectNotExistException as e:
-        raise ObjectNotExist(e)
+
+
+@app_authentication.delete('/{user_id}', **delete_user_url_config.dict())
+async def delete_user(user_id: str) -> int | Response:
+    delete_count = await UserCrud.delete(user_id)
+    if delete_count:
+        return delete_count
+    else:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)

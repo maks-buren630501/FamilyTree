@@ -8,7 +8,7 @@ from backend.core.additional import BaseUrlConfig
 
 
 class ResponseDescription(Enum):
-    CONFLICT: dict = {
+    CONFLICT: Enum = {
         "description": "Ошибка проверки уникальности значений",
         "content": {
             "application/json": {
@@ -26,7 +26,7 @@ class ResponseDescription(Enum):
             }
         }
     }
-    NO_CONTENT: dict = {
+    NO_CONTENT: Enum = {
         "description": "Пустой ответ"
     }
 
@@ -68,11 +68,22 @@ create_user_url_config = AuthenticationUrlConfig(
 update_user_url_config = AuthenticationUrlConfig(
     tags=['user'],
     name='Обновление пользователя',
-    description='Оновить данные о пользователе в системе',
+    description='Обновить данные о пользователе в системе',
     responses={
         status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value,
         status.HTTP_204_NO_CONTENT: ResponseDescription.NO_CONTENT.value
     },
     response_model=str,
     status_code=status.HTTP_201_CREATED
+)
+
+delete_user_url_config = AuthenticationUrlConfig(
+    tags=['user'],
+    name='аление пользователя',
+    description='Удалить пользователя из системые',
+    responses={
+        status.HTTP_204_NO_CONTENT: ResponseDescription.NO_CONTENT.value
+    },
+    response_model=str,
+    status_code=status.HTTP_200_OK
 )
