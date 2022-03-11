@@ -2,7 +2,7 @@ from pymongo.errors import DuplicateKeyError
 
 from backend.authentication.schemas import PyObjectId
 from backend.core.database.driver import database
-from backend.core.exception.base_exeption import UniqueIndexException
+from backend.core.exception.base_exeption import UniqueIndexException, ObjectNotExistException
 
 users_collection = database.get_collection("users")
 
@@ -29,9 +29,11 @@ class UserCrud:
             raise UniqueIndexException(error.details)
 
     @staticmethod
-    async def update(user_id: PyObjectId, user: dict) -> str:
+    async def update(user_id: PyObjectId, user: dict) -> int:
         try:
-            user = await users_collection.update_one({'_id': user_id}, {'$set': user})
-            return str(user.upserted_id)
+            result = await users_collection.update_one({'_id': user_id}, {'$set': user})
+            if not result.raw_result['updatedExisting']:
+                raise ObjectNotExistException(detail={})
+            return result.modified_count
         except DuplicateKeyError as error:
             raise UniqueIndexException(error.details)
