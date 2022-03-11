@@ -10,7 +10,7 @@ const routes = [
         redirect: 'Login',
         children: [
             {
-                path: '/login',
+                path: '/authentication',
                 name: 'Login',
                 component: LoginForm,
                 meta: {

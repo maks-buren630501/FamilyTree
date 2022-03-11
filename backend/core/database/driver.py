@@ -1,10 +1,6 @@
-from pymongo import MongoClient
-
 from backend.core.database.config import mongo_url
+import motor.motor_asyncio
 
-client = MongoClient(mongo_url)
+
+client = motor.motor_asyncio.AsyncIOMotorClient(mongo_url)
 database = client.get_database()
-
-
-
-
