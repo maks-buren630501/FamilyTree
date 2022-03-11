@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 
-from backend.core.exception.base_exeption import UniqueIndexException, ObjectNotExistException
+from backend.core.exception.base_exeption import UniqueIndexException
 
 
 def create_message(loc: list, msg: str, type_exc: str) -> str:
@@ -12,15 +12,6 @@ def create_message(loc: list, msg: str, type_exc: str) -> str:
             "type": type_exc
         }
     )
-
-
-class ObjectNotExist(HTTPException):
-    """Обработчик ошибки получения записи из БД по его ID, если оно не может быть преобразованно в ObjectId."""
-
-    def __init__(self, exc: ObjectNotExistException):
-        self.message = exc.message
-        self.status_code = status.HTTP_400_BAD_REQUEST
-        super().__init__(detail=self.message, status_code=self.status_code)
 
 
 class NotUniqueIndex(HTTPException):
