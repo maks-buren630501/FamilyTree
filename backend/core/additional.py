@@ -1,3 +1,8 @@
+from typing import Callable
+
+from pydantic import BaseSettings
+
+
 def singleton(class_):
     instances = {}
 
@@ -6,4 +11,15 @@ def singleton(class_):
             instances[class_] = class_(*args, **kwargs)
         return instances[class_]
     return getinstance
+
+
+class BaseUrlConfig(BaseSettings):
+    tags: list
+    name: str
+    description: str
+    response_model: Callable
+    status_code: int
+
+    class Config:
+        frozen = True
 
