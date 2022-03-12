@@ -3,12 +3,25 @@ import Authorization from '../views/Authorization.vue';
 import LoginForm from '../components/Authorization/LoginForm.vue';
 import RegistrationForm from '../components/Authorization/RegistrationForm.vue';
 import EmailConfirmForm from '../components/Authorization/EmailConfirmForm.vue';
+import WorkSpace from '../views/WorkSpace.vue';
+import Tree from '../components/FamilyTree/Tree.vue';
 
 const routes = [
     {
         path: '/',
+        redirect: {name: 'Login'},
+        component: WorkSpace,
+        children: [
+            {
+                path: '/tree',
+                name: 'Tree',
+                component: Tree
+            }
+        ]
+    },
+    {
+        path: '/',
         component: Authorization,
-        redirect: 'Login',
         children: [
             {
                 path: '/:key',
