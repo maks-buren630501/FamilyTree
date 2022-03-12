@@ -5,7 +5,7 @@ from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from backend.authentication.config import get_users_url_config, get_user_url_config, create_user_url_config, \
-    update_user_url_config
+    update_user_url_config, delete_user_url_config
 from backend.authentication.crud import UserCrud
 from backend.authentication.schemas import UserSchemaGet, UserSchemaCreate, UpdateUserSchema
 from backend.core.exception.base_exeption import UniqueIndexException
@@ -40,8 +40,8 @@ async def create_user(user: UserSchemaCreate) -> str:
 
 
 @app_authentication.put('/{user_id}', **update_user_url_config.dict())
-async def update_user(user_id: PyObjectId, user: UpdateUserSchema) -> int:
-    user = {k: v for k, v in user.dict().items() if v is not None}
+async def update_user(user_id: str, user: UpdateUserSchema) -> int | Response:
+    user = {k: v for k, v in user.dict().items() if v is not None}  # Удаление ключей со значением Null
     try:
         update_count = await UserCrud.update(user_id, user)
         if update_count:
