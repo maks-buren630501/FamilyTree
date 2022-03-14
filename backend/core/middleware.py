@@ -1,5 +1,5 @@
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from fastapi.responses import JSONResponse
 
 
 async def error_handler_middleware(request: Request, call_next):
