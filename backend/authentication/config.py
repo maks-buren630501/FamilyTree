@@ -79,11 +79,33 @@ update_user_url_config = AuthenticationUrlConfig(
 
 delete_user_url_config = AuthenticationUrlConfig(
     tags=['user'],
-    name='аление пользователя',
+    name='Удаление пользователя',
     description='Удалить пользователя из системые',
     responses={
         status.HTTP_204_NO_CONTENT: ResponseDescription.NO_CONTENT.value
     },
     response_model=str,
     status_code=status.HTTP_200_OK
+)
+
+registration_user_url_config = AuthenticationUrlConfig(
+    tags=['user'],
+    name='Регистрация пользователя',
+    description='Регистрация пользователя в системе, необходима активация',
+    responses={
+        status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value
+    },
+    response_model=str,
+    status_code=status.HTTP_201_CREATED
+)
+
+activate_user_url_config = AuthenticationUrlConfig(
+    tags=['user'],
+    name='Активация аккаунта пользователя',
+    description='Активация аккаунта пользователя в системе',
+    responses={
+        status.HTTP_204_NO_CONTENT: ResponseDescription.NO_CONTENT.value
+    },
+    response_model=str,
+    status_code=status.HTTP_201_CREATED
 )
