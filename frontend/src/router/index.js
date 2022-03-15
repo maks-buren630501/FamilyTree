@@ -2,13 +2,37 @@ import { createWebHistory, createRouter } from "vue-router";
 import Authorization from '../views/Authorization.vue';
 import LoginForm from '../components/Authorization/LoginForm.vue';
 import RegistrationForm from '../components/Authorization/RegistrationForm.vue';
+import EmailConfirmForm from '../components/Authorization/EmailConfirmForm.vue';
+import WorkSpace from '../views/WorkSpace.vue';
+import Tree from '../components/FamilyTree/Tree.vue';
 
 const routes = [
     {
         path: '/',
-        component: Authorization,
-        redirect: 'Login',
+        redirect: {name: 'Login'},
+        component: WorkSpace,
         children: [
+            {
+                path: '/tree',
+                name: 'Tree',
+                component: Tree
+            }
+        ]
+    },
+    {
+        path: '/',
+        component: Authorization,
+        children: [
+            {
+                path: '/:key',
+                name: 'EmailConfirm',
+                component: EmailConfirmForm,
+                meta: {
+                    title: 'Ваш аккаунт подтвержден',
+                    link: 'Login',
+                    textLink: 'Войдите в систему'
+                }
+            },
             {
                 path: '/authentication',
                 name: 'Login',
@@ -16,7 +40,7 @@ const routes = [
                 meta: {
                     title: 'Войдите в свой аккаунт',
                     link: 'Registration',
-                    textLink: 'Зарегестрируйтесь'
+                    textLink: 'или зарегестрируйтесь'
                 }
             },
             {
@@ -26,7 +50,7 @@ const routes = [
                 meta: {
                     title: 'Зарегестрируйте аккаунт',
                     link: 'Login',
-                    textLink: 'Войдите в систему'
+                    textLink: 'или войдите в систему'
                 }
             }
         ]
