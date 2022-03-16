@@ -14,8 +14,9 @@ async def error_handler_middleware(request: Request, call_next):
         return response
     except Exception as e:
         try:
-            return JSONResponse(e.args, status_code=423)
+            return JSONResponse(e.args, status_code=500)
+        except TypeError:
+            return JSONResponse({'detail': 'Error description is not json serialised'}, status_code=500)
         except:
-            return JSONResponse({'detail': 'error description is not json serialised'}, status_code=423)
-
+            return JSONResponse({'detail': 'Unknow error'}, status_code=500)
 

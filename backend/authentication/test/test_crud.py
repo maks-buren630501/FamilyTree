@@ -18,9 +18,9 @@ class UserCrudTestCase(IsolatedAsyncioTestCase):
         self.connection.client.close()
 
     async def test_get_user_by_id(self):
-        user = await self.crud.create({'name': 'pushkin', 'email': 'pushkin@mail.com', 'password': 'veverbi344'})
+        user = await self.crud.create({'username': 'pushkin', 'email': 'pushkin@mail.com', 'password': 'veverbi344'})
         user_data = await self.crud.get(user)
-        self.assertEqual(user_data['name'], 'pushkin')
+        self.assertEqual(user_data['username'], 'pushkin')
         self.assertEqual(user_data['email'], 'pushkin@mail.com')
         self.assertEqual(user_data['password'], 'veverbi344')
 
@@ -33,22 +33,22 @@ class UserCrudTestCase(IsolatedAsyncioTestCase):
         self.assertIsNone(user_data)
 
     async def test_create_with_same_email(self):
-        await self.crud.create({'name': 'pushkin', 'email': 'pushkin@mail.com', 'password': 'veverbi344'})
+        await self.crud.create({'username': 'pushkin', 'email': 'pushkin@mail.com', 'password': 'veverbi344'})
         with self.assertRaises(UniqueIndexException) as e:
-            await self.crud.create({'name': 'evgestrogan', 'email': 'pushkin@mail.com', 'password': 'ybuhvdfjv34r2'})
+            await self.crud.create({'username': 'evgestrogan', 'email': 'pushkin@mail.com', 'password': 'ybuhvdfjv34r2'})
             self.assertIsInstance(e, UniqueIndexException)
 
     async def test_get_all_users(self):
-        await self.crud.create({'name': 'pushkin', 'email': 'pushkin@mail.com', 'password': 'veverbi344'})
-        await self.crud.create({'name': 'evgestrogan', 'email': 'evgestrogan@mail.com', 'password': 'btrbt345'})
-        await self.crud.create({'name': 'nikolay', 'email': 'nikolay@mail.com', 'password': 'grbwvr4315btr'})
+        await self.crud.create({'username': 'pushkin', 'email': 'pushkin@mail.com', 'password': 'veverbi344'})
+        await self.crud.create({'username': 'evgestrogan', 'email': 'evgestrogan@mail.com', 'password': 'btrbt345'})
+        await self.crud.create({'username': 'nikolay', 'email': 'nikolay@mail.com', 'password': 'grbwvr4315btr'})
         users = await self.crud.get_all()
         self.assertIsInstance(users, list)
         self.assertEqual(3, len(users))
 
     async def test_remove_user(self):
-        await self.crud.create({'name': 'pushkin', 'email': 'pushkin@mail.com', 'password': 'veverbi344'})
-        user = await self.crud.create({'name': 'evgestrogan', 'email': 'evgestrogan@mail.com', 'password': 'btrbt345'})
+        await self.crud.create({'username': 'pushkin', 'email': 'pushkin@mail.com', 'password': 'veverbi344'})
+        user = await self.crud.create({'username': 'evgestrogan', 'email': 'evgestrogan@mail.com', 'password': 'btrbt345'})
         result = await self.crud.delete(user)
         users = await self.crud.get_all()
         self.assertEqual(1, len(users))
