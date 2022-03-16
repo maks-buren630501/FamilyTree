@@ -109,3 +109,14 @@ activate_user_url_config = AuthenticationUrlConfig(
     response_model=str,
     status_code=status.HTTP_201_CREATED
 )
+
+login_user_url_config = AuthenticationUrlConfig(
+    tags=['user'],
+    name='Логин пользователя',
+    description='Вход пользователя в систему',
+    responses={
+        status.HTTP_403_FORBIDDEN: ResponseDescription.NO_CONTENT.value
+    },
+    response_model=str,
+    status_code=status.HTTP_200_OK
+)
