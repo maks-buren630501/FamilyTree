@@ -7,6 +7,9 @@ export default {
     actions: {
         async registration({}, user) {
             return await axios.post('authentication/registration', user)
+        },
+        async activate({}, key) {
+            return await axios.put(`authentication/activate/${key}`)
         }
     }
 }
