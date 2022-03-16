@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 
 
 class BaseUserSchema(BaseModel):
-    name: str
+    username: str
     email: EmailStr
 
 
@@ -15,11 +15,11 @@ class UserSchemaCreate(BaseUserSchema):
 
 
 class UpdateUserSchema(BaseModel):
-    name: str | None
+    username: str | None
     email: EmailStr | None
     password: str | None
 
 
 class LoginUserSchema(BaseModel):
-    name: str
+    username: str
     password: str
