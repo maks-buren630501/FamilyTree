@@ -73,7 +73,7 @@ async def registration_user(user: UserSchemaCreate, crud: UserCrud = Depends(use
     try:
         user.password = hash_password(user.password)
         new_user = await crud.create({**user.dict(), **{'active': False}})
-        registration_token = create_registration_token(new_user)
+        registration_token = create_registration_token(new_user).replace('.', '|')
         mail.send_message(user.email, f"Subject: Activate account FamilyTree\nGo to link '127.0.0.1/{registration_token}'")
         return new_user
     except UniqueIndexException as e:
@@ -83,7 +83,7 @@ async def registration_user(user: UserSchemaCreate, crud: UserCrud = Depends(use
 @app_authentication.put('/activate/{registration_token}', **activate_user_url_config.dict())
 async def activate_user(registration_token: str, crud: UserCrud = Depends(user_crud)):
     try:
-        user_data = decode_token(registration_token)
+        user_data = decode_token(registration_token.replace('|', '.'))
         update_count = await crud.update(user_data['user_id'], {'active': True})
         if update_count:
             return update_count
@@ -96,7 +96,7 @@ async def activate_user(registration_token: str, crud: UserCrud = Depends(user_c
 @app_authentication.post('/login', **login_user_url_config.dict())
 async def login(user: LoginUserSchema, crud: UserCrud = Depends(user_crud)) -> Response:
     user.password = hash_password(user.password)
-    data_base_user = await crud.find({'name': user.name})
+    data_base_user = await crud.find({'username': user.username})
     if data_base_user and data_base_user['password'] == user.password:
         return Response(status_code=status.HTTP_200_OK)
     else:
