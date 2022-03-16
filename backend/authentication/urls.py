@@ -73,9 +73,13 @@ async def registration_user(user: UserSchemaCreate, crud: UserCrud = Depends(use
     try:
         user.password = hash_password(user.password)
         new_user = await crud.create({**user.dict(), **{'active': False}})
-        registration_token = create_registration_token(new_user).replace('.', '|')
-        mail.send_message(user.email, f"Subject: Activate account FamilyTree\nGo to link '127.0.0.1/{registration_token}'")
-        return new_user
+        try:
+            registration_token = create_registration_token(new_user).replace('.', '|')
+            mail.send_message(user.email, f"Subject: Activate account FamilyTree\nGo to link '127.0.0.1/{registration_token}'")
+            return new_user
+        except Exception as e:
+            await crud.delete(new_user)
+            raise e
     except UniqueIndexException as e:
         raise NotUniqueIndex(e)
 
