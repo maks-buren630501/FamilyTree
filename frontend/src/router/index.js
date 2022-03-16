@@ -8,9 +8,16 @@ import WorkSpace from '../views/WorkSpace.vue';
 import Tree from '../components/FamilyTree/Tree.vue';
 import {store} from "../store";
 
+function confirmRegistration(to, from, next) {
+    if(from.name !== 'Registration') {
+        next({name: 'Registration'})
+    } else {
+        next()
+    }
+}
+
 
 function activateAccount(to, from, next) {
-    console.log(to, from, next)
     store.dispatch('activate', to.params.key)
         .then(r => {
             if(r.status === 204) {
@@ -45,12 +52,12 @@ const routes = [
                 path: '/:key',
                 name: 'EmailConfirm',
                 component: EmailConfirmForm,
+                beforeEnter: [activateAccount],
                 meta: {
                     title: 'Ваш аккаунт подтвержден',
                     link: 'Login',
                     textLink: 'Войдите в систему'
-                },
-                beforeEnter: [activateAccount]
+                }
             },
             {
                 path: '/authentication',
@@ -76,6 +83,7 @@ const routes = [
                 path: '/registration_confirm',
                 name: 'RegistrationConfirm',
                 component: RegistrationConfirmForm,
+                beforeEnter: [confirmRegistration],
                 meta: {
                     title: 'Успешно. проверьте свою почту.',
                     link: 'Login',
