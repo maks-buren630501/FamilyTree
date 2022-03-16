@@ -1,9 +1,24 @@
 <template>
-  <input :class="classes">
+  <input
+    :class="classes"
+    v-model="value"
+  >
 </template>
 
 <script setup>
 import {reactive, computed} from 'vue'
+
+const props = defineProps(['modelValue'])
+const emit = defineEmits(['update:modelValue'])
+
+const value = computed({
+  get() {
+    return props.modelValue
+  },
+  set(value) {
+    emit('update:modelValue', value)
+  }
+})
 
 const listClasses = reactive([
     'appearance-none',

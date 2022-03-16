@@ -11,7 +11,8 @@ from backend.authentication.config import get_users_url_config, get_user_url_con
 from backend.authentication.crud import UserCrud
 from backend.authentication.dependence import user_crud
 from backend.authentication.schemas import UserSchemaGet, UserSchemaCreate, UpdateUserSchema, LoginUserSchema
-from backend.authentication.functions import hash_password, create_registration_token, decode_token
+from backend.authentication.functions import hash_password, create_registration_token
+from backend.core.additional import decode_token
 from backend.core.email.driver import mail
 from backend.core.exception.base_exeption import UniqueIndexException
 from backend.core.exception.http_exeption import NotUniqueIndex, TokenError

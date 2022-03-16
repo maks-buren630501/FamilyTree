@@ -2,6 +2,7 @@ import { createWebHistory, createRouter } from "vue-router";
 import Authorization from '../views/Authorization.vue';
 import LoginForm from '../components/Authorization/LoginForm.vue';
 import RegistrationForm from '../components/Authorization/RegistrationForm.vue';
+import RegistrationConfirmForm from '../components/Authorization/RegistrationConfirmForm.vue';
 import EmailConfirmForm from '../components/Authorization/EmailConfirmForm.vue';
 import WorkSpace from '../views/WorkSpace.vue';
 import Tree from '../components/FamilyTree/Tree.vue';
@@ -52,7 +53,15 @@ const routes = [
                     link: 'Login',
                     textLink: 'или войдите в систему'
                 }
-            }
+            },
+            {
+                path: '/registration_confirm',
+                name: 'RegistrationConfirm',
+                component: RegistrationConfirmForm,
+                meta: {
+                    title: 'Успешно. проверьте свою почту.',
+                }
+            },
         ]
     }
 ]
