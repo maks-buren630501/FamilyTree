@@ -52,9 +52,9 @@
 <script setup>
 import TextField from "../UI/Input/TextField.vue";
 import Btn from "../UI/Button/Btn.vue";
-import {store} from "../../store";
+import {useRouter} from 'vue-router';
+import { useStore } from 'vuex';
 import {ref} from "vue";
-import {router} from "../../router";
 
 const username = ref("")
 const email = ref("")
@@ -62,6 +62,8 @@ const password = ref("")
 const confirmPassword = ref("")
 
 const msgError = ref(null)
+const router = useRouter()
+const store = useStore()
 
 function confirmRegistration() {
   if(password.value === confirmPassword.value) {
