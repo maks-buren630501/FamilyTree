@@ -18,3 +18,8 @@ class UpdateUserSchema(BaseModel):
     name: str | None
     email: EmailStr | None
     password: str | None
+
+
+class LoginUserSchema(BaseModel):
+    name: str
+    password: str

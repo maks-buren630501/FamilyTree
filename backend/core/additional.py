@@ -1,5 +1,8 @@
-from typing import Callable
+import os
+from datetime import timedelta, datetime
+from typing import Callable, Optional
 
+from jose import jwt
 from pydantic import BaseSettings
 
 
@@ -22,4 +25,19 @@ class BaseUrlConfig(BaseSettings):
 
     class Config:
         frozen = True
+
+
+def create_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(days=1)
+    to_encode.update({"exp": expire})
+    token = jwt.encode(to_encode, os.environ['SECRET_KEY'], algorithm='HS256')
+    return token
+
+
+def decode_token(token: str):
+    return jwt.decode(token, os.environ['SECRET_KEY'], algorithms='HS256')
 

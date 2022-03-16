@@ -13,6 +13,9 @@ async def error_handler_middleware(request: Request, call_next):
         response = await call_next(request)
         return response
     except Exception as e:
-        return JSONResponse(e.args, status_code=422)
+        try:
+            return JSONResponse(e.args, status_code=423)
+        except:
+            return JSONResponse({'detail': 'error description is not json serialised'}, status_code=423)
 
 
