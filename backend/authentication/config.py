@@ -131,3 +131,14 @@ logout_user_url_config = AuthenticationUrlConfig(
     response_model=str,
     status_code=status.HTTP_200_OK
 )
+
+refresh_url_config = AuthenticationUrlConfig(
+    tags=['user'],
+    name='Обновление токена',
+    description='Обновление токена пользователя',
+    responses={
+        status.HTTP_403_FORBIDDEN: ResponseDescription.NO_CONTENT.value
+    },
+    response_model=str,
+    status_code=status.HTTP_200_OK
+)

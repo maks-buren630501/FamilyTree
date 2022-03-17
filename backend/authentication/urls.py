@@ -8,12 +8,12 @@ from starlette.requests import Request
 
 from backend.authentication.config import get_users_url_config, get_user_url_config, create_user_url_config, \
     update_user_url_config, delete_user_url_config, registration_user_url_config, activate_user_url_config, \
-    login_user_url_config, logout_user_url_config
+    login_user_url_config, logout_user_url_config, refresh_url_config
 from backend.authentication.crud import UserCrud, RefreshTokenCrud
 from backend.authentication.dependence import user_crud, refresh_token_crud
 from backend.authentication.schemas import UserSchemaGet, UserSchemaCreate, UpdateUserSchema, LoginUserSchema
 from backend.authentication.functions import hash_password, create_registration_token, create_login_token, \
-    new_refresh_token, get_refresh_cookies_age
+    new_refresh_token, get_refresh_cookies_age, update_refresh_token
 from backend.core.additional import decode_token
 from backend.core.email.driver import mail
 from backend.core.exception.base_exeption import UniqueIndexException
@@ -21,6 +21,19 @@ from backend.core.exception.http_exeption import NotUniqueIndex, TokenError
 from backend.core.middleware import error_handler_middleware
 
 app_authentication = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_handler_middleware)])
+
+
+@app_authentication.get('/refresh', **refresh_url_config.dict())
+async def refresh(request: Request) -> Response | str:
+    refresh_token = request.cookies.get('refresh_token')
+    if refresh_token:
+        new_access_token = await update_refresh_token(refresh_token)
+        if new_access_token:
+            return new_access_token
+        else:
+            return Response(status_code=status.HTTP_403_FORBIDDEN)
+    else:
+        return Response(status_code=status.HTTP_403_FORBIDDEN)
 
 
 @app_authentication.get('/{user_id}', **get_user_url_config.dict())
@@ -100,7 +113,7 @@ async def activate_user(registration_token: str, crud: UserCrud = Depends(user_c
 
 
 @app_authentication.post('/login', **login_user_url_config.dict())
-async def login(user: LoginUserSchema, response: Response, crud: UserCrud = Depends(user_crud)) -> Response | None:
+async def login(user: LoginUserSchema, response: Response, crud: UserCrud = Depends(user_crud)) -> Response | str:
     user.password = hash_password(user.password)
     data_base_user = await crud.find({'username': user.username})
     if data_base_user and data_base_user['password'] == user.password:
@@ -108,9 +121,8 @@ async def login(user: LoginUserSchema, response: Response, crud: UserCrud = Depe
         refresh_token = await new_refresh_token(data_base_user['id'])
         response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, path='api/',
                             max_age=get_refresh_cookies_age(90))
-        response.set_cookie(key='access_token', value=access_token, httponly=True, path='api/')
         response.status_code = status.HTTP_200_OK
-        return
+        return access_token
     else:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
 
@@ -122,6 +134,5 @@ async def logout(request: Request, response: Response, refresh_crud: RefreshToke
     else:
         await refresh_crud.delete(request.cookies['refresh_token'])
         response.delete_cookie(key='refresh_token', httponly=True, path='api/')
-        response.delete_cookie(key='access_token', httponly=True, path='api/')
         response.status_code = status.HTTP_200_OK
         return
