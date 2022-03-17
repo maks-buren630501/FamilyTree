@@ -120,3 +120,14 @@ login_user_url_config = AuthenticationUrlConfig(
     response_model=str,
     status_code=status.HTTP_200_OK
 )
+
+logout_user_url_config = AuthenticationUrlConfig(
+    tags=['user'],
+    name='Выход пользователя',
+    description='Выход пользователя из системы',
+    responses={
+        status.HTTP_403_FORBIDDEN: ResponseDescription.NO_CONTENT.value
+    },
+    response_model=str,
+    status_code=status.HTTP_200_OK
+)

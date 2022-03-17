@@ -4,15 +4,16 @@ from fastapi import FastAPI, Response, status, Depends
 from jose import JWTError
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
 
 from backend.authentication.config import get_users_url_config, get_user_url_config, create_user_url_config, \
     update_user_url_config, delete_user_url_config, registration_user_url_config, activate_user_url_config, \
-    login_user_url_config
+    login_user_url_config, logout_user_url_config
 from backend.authentication.crud import UserCrud, RefreshTokenCrud
 from backend.authentication.dependence import user_crud, refresh_token_crud
 from backend.authentication.schemas import UserSchemaGet, UserSchemaCreate, UpdateUserSchema, LoginUserSchema
 from backend.authentication.functions import hash_password, create_registration_token, create_login_token, \
-    create_refresh_token
+    new_refresh_token, get_refresh_cookies_age
 from backend.core.additional import decode_token
 from backend.core.email.driver import mail
 from backend.core.exception.base_exeption import UniqueIndexException
@@ -97,21 +98,29 @@ async def activate_user(registration_token: str, crud: UserCrud = Depends(user_c
     except JWTError as e:
         raise TokenError(e)
 
-max_age = 90 * 24 * 60 * 60
-
 
 @app_authentication.post('/login', **login_user_url_config.dict())
-async def login(user: LoginUserSchema, crud: UserCrud = Depends(user_crud),
-                crud_refresh: RefreshTokenCrud = Depends(refresh_token_crud)) -> Response:
+async def login(user: LoginUserSchema, crud: UserCrud = Depends(user_crud)) -> Response:
     user.password = hash_password(user.password)
     data_base_user = await crud.find({'username': user.username})
     if data_base_user and data_base_user['password'] == user.password:
         access_token = create_login_token(data_base_user['id'])
-        refresh_token = await crud_refresh.create(create_refresh_token(data_base_user['id']).dict())
+        refresh_token = await new_refresh_token(data_base_user['id'])
         response = Response()
-        response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, path='api/', max_age=max_age)
+        response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, path='api/',
+                            max_age=get_refresh_cookies_age())
         response.set_cookie(key='access_token', value=access_token, httponly=True, path='api/')
         return response
     else:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
 
+
+@app_authentication.post('/logout', **logout_user_url_config.dict())
+async def logout(request: Request, response: Response, refresh_crud: RefreshTokenCrud = Depends(refresh_token_crud)):
+    if not request.scope['user']:
+        return Response(status_code=status.HTTP_403_FORBIDDEN)
+    else:
+        await refresh_crud.delete(request.cookies['refresh_token'])
+        response.delete_cookie(key='refresh_token', httponly=True, path='api/')
+        response.delete_cookie(key='access_token', httponly=True, path='api/')
+        return {}
