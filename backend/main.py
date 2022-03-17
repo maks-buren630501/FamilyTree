@@ -8,8 +8,15 @@ from backend.authentication.urls import app_authentication
 from backend.core.middleware import authentication_middleware
 from backend.tree.urls import app_tree
 
-app = FastAPI(middleware=[Middleware(CORSMiddleware,  allow_origins=['*'], allow_methods=["*"], allow_headers=["*"]),
-                          Middleware(BaseHTTPMiddleware, dispatch=authentication_middleware)])
+origins = [
+    "http://127.0.0.1:3000"
+]
+
+app = FastAPI(middleware=[
+    Middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"], allow_credentials=True),
+    Middleware(BaseHTTPMiddleware, dispatch=authentication_middleware)
+])
+
 app.mount('/authentication', app_authentication)
 app.mount('/tree', app_tree)
 

@@ -31,6 +31,9 @@ def create_refresh_token(user_id: str):
     return BaseRefreshTokenSchema(user_id=user_id, time_out=datetime.datetime.utcnow() + timedelta(days=90))
 
 
+def get_refresh_cookies_age():
+    return 90 * 24 * 60 * 60
+
 async def update_refresh_token(refresh_token: str):
     crud = RefreshTokenCrud()
     database_refresh_token = await crud.get(refresh_token)
@@ -41,6 +44,16 @@ async def update_refresh_token(refresh_token: str):
             return None
     else:
         return None
+
+
+async def new_refresh_token(user_id: str):
+    crud = RefreshTokenCrud()
+    tokens = await crud.get_by_user(user_id)
+    if len(tokens) > 2:
+        await crud.delete(sorted(tokens, key=lambda x: x['time_out'])[0]['id'])
+    return await crud.create(create_refresh_token(user_id).dict())
+
+
 
 
 
