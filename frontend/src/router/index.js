@@ -85,7 +85,7 @@ const routes = [
                 component: RegistrationConfirmForm,
                 beforeEnter: [confirmRegistration],
                 meta: {
-                    title: 'Успешно. проверьте свою почту.',
+                    title: 'Успешно. Проверьте свою почту.',
                     link: 'Login',
                     textLink: 'а после войдите в систему'
                 }
