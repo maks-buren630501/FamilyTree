@@ -11,7 +11,7 @@
         name="username"
         type="text"
         autocomplete="username"
-        placeholder="Имя пользователя"
+        placeholder="Логин пользователя"
         required
       ></text-field>
       <text-field
@@ -43,9 +43,7 @@
       ></text-field>
     </div>
 
-    <div>
-      <btn type="submit">Зарегестрироваться</btn>
-    </div>
+    <btn type="submit">Зарегестрироваться</btn>
   </form>
 </template>
 
@@ -53,8 +51,11 @@
 import TextField from "../UI/Input/TextField.vue";
 import Btn from "../UI/Button/Btn.vue";
 import {useRouter} from 'vue-router';
-import { useStore } from 'vuex';
+import {useStore} from 'vuex';
 import {ref} from "vue";
+
+const router = useRouter()
+const store = useStore()
 
 const username = ref("")
 const email = ref("")
@@ -62,8 +63,6 @@ const password = ref("")
 const confirmPassword = ref("")
 
 const msgError = ref(null)
-const router = useRouter()
-const store = useStore()
 
 function confirmRegistration() {
   if(password.value === confirmPassword.value) {
