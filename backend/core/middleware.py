@@ -1,5 +1,8 @@
+from jose import JWTError
+from starlette import status
 from starlette.requests import Request
 from fastapi.responses import JSONResponse
+from starlette.responses import Response
 
 from backend.authentication.functions import update_refresh_token
 from backend.core.additional import decode_token
@@ -17,11 +20,11 @@ async def error_handler_middleware(request: Request, call_next) -> Response:
         return response
     except Exception as e:
         try:
-            return JSONResponse(e.args, status_code=500)
+            return Response(e.args, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except TypeError:
             return Response('Error description is not json serialised', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except:
-            return JSONResponse({'detail': 'Unknown error'}, status_code=500)
+            return Response('Unknown error', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 async def authentication_middleware(request: Request, call_next) -> Response:

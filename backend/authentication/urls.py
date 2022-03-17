@@ -100,16 +100,17 @@ async def activate_user(registration_token: str, crud: UserCrud = Depends(user_c
 
 
 @app_authentication.post('/login', **login_user_url_config.dict())
-async def login(user: LoginUserSchema, crud: UserCrud = Depends(user_crud)) -> Response:
+async def login(user: LoginUserSchema, response: Response, crud: UserCrud = Depends(user_crud)) -> Response | None:
     user.password = hash_password(user.password)
     data_base_user = await crud.find({'username': user.username})
     if data_base_user and data_base_user['password'] == user.password:
         access_token = create_login_token(data_base_user['id'])
         refresh_token = await new_refresh_token(data_base_user['id'])
         response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, path='api/',
-                            max_age=get_refresh_cookies_age())
+                            max_age=get_refresh_cookies_age(90))
         response.set_cookie(key='access_token', value=access_token, httponly=True, path='api/')
-        return response
+        response.status_code = status.HTTP_200_OK
+        return
     else:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
 
