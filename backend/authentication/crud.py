@@ -13,3 +13,8 @@ class UserCrud(BaseCrud):
         else:
             return None
 
+
+class RefreshTokenCrud(BaseCrud):
+    def __init__(self):
+        super().__init__("refresh_tokens")
+

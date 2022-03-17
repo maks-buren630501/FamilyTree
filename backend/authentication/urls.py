@@ -8,10 +8,11 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from backend.authentication.config import get_users_url_config, get_user_url_config, create_user_url_config, \
     update_user_url_config, delete_user_url_config, registration_user_url_config, activate_user_url_config, \
     login_user_url_config
-from backend.authentication.crud import UserCrud
-from backend.authentication.dependence import user_crud
+from backend.authentication.crud import UserCrud, RefreshTokenCrud
+from backend.authentication.dependence import user_crud, refresh_token_crud
 from backend.authentication.schemas import UserSchemaGet, UserSchemaCreate, UpdateUserSchema, LoginUserSchema
-from backend.authentication.functions import hash_password, create_registration_token
+from backend.authentication.functions import hash_password, create_registration_token, create_login_token, \
+    create_refresh_token
 from backend.core.additional import decode_token
 from backend.core.email.driver import mail
 from backend.core.exception.base_exeption import UniqueIndexException
@@ -96,13 +97,21 @@ async def activate_user(registration_token: str, crud: UserCrud = Depends(user_c
     except JWTError as e:
         raise TokenError(e)
 
+max_age = 90 * 24 * 60 * 60
+
 
 @app_authentication.post('/login', **login_user_url_config.dict())
-async def login(user: LoginUserSchema, crud: UserCrud = Depends(user_crud)) -> Response:
+async def login(user: LoginUserSchema, crud: UserCrud = Depends(user_crud),
+                crud_refresh: RefreshTokenCrud = Depends(refresh_token_crud)) -> Response:
     user.password = hash_password(user.password)
     data_base_user = await crud.find({'username': user.username})
     if data_base_user and data_base_user['password'] == user.password:
-        return Response(status_code=status.HTTP_200_OK)
+        access_token = create_login_token(data_base_user['id'])
+        refresh_token = await crud_refresh.create(create_refresh_token(data_base_user['id']).dict())
+        response = Response()
+        response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, path='api/', max_age=max_age)
+        response.set_cookie(key='access_token', value=access_token, httponly=True, path='api/')
+        return response
     else:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
 
