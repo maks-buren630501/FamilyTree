@@ -1,8 +1,11 @@
+import datetime
 import hashlib
 import os
 
 from datetime import timedelta
 
+from backend.authentication.crud import RefreshTokenCrud
+from backend.authentication.schemas import BaseRefreshTokenSchema
 from backend.core.additional import create_token
 
 
@@ -18,6 +21,26 @@ def hash_password(password):
 
 def create_registration_token(user_id: str):
     return create_token({'user_id': user_id}, timedelta(days=15))
+
+
+def create_login_token(user_id: str):
+    return create_token({'user_id': user_id}, timedelta(minutes=10))
+
+
+def create_refresh_token(user_id: str):
+    return BaseRefreshTokenSchema(user_id=user_id, time_out=datetime.datetime.utcnow() + timedelta(days=90))
+
+
+async def update_refresh_token(refresh_token: str):
+    crud = RefreshTokenCrud()
+    database_refresh_token = await crud.get(refresh_token)
+    if database_refresh_token and database_refresh_token['time_out'] > datetime.datetime.utcnow():
+        if await crud.update(refresh_token, {'time_out': datetime.datetime.utcnow() + timedelta(days=90)}):
+            return create_login_token(database_refresh_token['user_id'])
+        else:
+            return None
+    else:
+        return None
 
 
 

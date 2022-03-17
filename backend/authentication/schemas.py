@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel, EmailStr
 
 
@@ -23,3 +25,10 @@ class UpdateUserSchema(BaseModel):
 class LoginUserSchema(BaseModel):
     username: str
     password: str
+
+
+class BaseRefreshTokenSchema(BaseModel):
+    user_id: str
+    time_out: datetime.datetime
+
+
