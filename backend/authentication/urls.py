@@ -87,16 +87,16 @@ async def registration_user(user: UserSchemaCreate, crud: UserCrud = Depends(use
 
 
 @app_authentication.put('/activate/{registration_token}', **activate_user_url_config.dict())
-async def activate_user(registration_token: str, crud: UserCrud = Depends(user_crud)):
+async def activate_user(registration_token: str, crud: UserCrud = Depends(user_crud)) -> Response:
     try:
         user_data = decode_token(registration_token.replace('|', '.'))
-        update_count = await crud.update(user_data['user_id'], {'active': True})
-        if update_count:
-            return update_count
-        else:
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
     except JWTError as e:
         raise TokenError(e)
+    update_count = await crud.update(user_data['user_id'], {'active': True})
+    if update_count:
+        return Response(status_code=status.HTTP_201_CREATED)
+    else:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app_authentication.post('/login', **login_user_url_config.dict())
@@ -106,7 +106,6 @@ async def login(user: LoginUserSchema, crud: UserCrud = Depends(user_crud)) -> R
     if data_base_user and data_base_user['password'] == user.password:
         access_token = create_login_token(data_base_user['id'])
         refresh_token = await new_refresh_token(data_base_user['id'])
-        response = Response()
         response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, path='api/',
                             max_age=get_refresh_cookies_age())
         response.set_cookie(key='access_token', value=access_token, httponly=True, path='api/')
@@ -116,11 +115,12 @@ async def login(user: LoginUserSchema, crud: UserCrud = Depends(user_crud)) -> R
 
 
 @app_authentication.post('/logout', **logout_user_url_config.dict())
-async def logout(request: Request, response: Response, refresh_crud: RefreshTokenCrud = Depends(refresh_token_crud)):
+async def logout(request: Request, response: Response, refresh_crud: RefreshTokenCrud = Depends(refresh_token_crud)) -> Response | None:
     if not request.scope['user']:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
     else:
         await refresh_crud.delete(request.cookies['refresh_token'])
         response.delete_cookie(key='refresh_token', httponly=True, path='api/')
         response.delete_cookie(key='access_token', httponly=True, path='api/')
-        return {}
+        response.status_code = status.HTTP_200_OK
+        return
