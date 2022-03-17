@@ -49,7 +49,7 @@ async def update_refresh_token(refresh_token: str) -> str | None:
 
 async def new_refresh_token(user_id: str) -> str:
     crud = RefreshTokenCrud()
-    tokens = await crud.get_by_user(user_id)
+    tokens = await crud.get_by_user_id(user_id)
     if len(tokens) > 2:
         await crud.delete(sorted(tokens, key=lambda x: x['time_out'])[0]['id'])
     return await crud.create(create_refresh_token(user_id).dict())
