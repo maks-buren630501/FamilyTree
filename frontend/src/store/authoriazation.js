@@ -8,6 +8,9 @@ export default {
         async registration({}, user) {
             return await axios.post('authentication/registration', user)
         },
+        async login({}, user) {
+            return await axios.post('authentication/login', user)
+        },
         async activate({}, key) {
             return await axios.put(`authentication/activate/${key}`)
         }
