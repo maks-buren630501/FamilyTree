@@ -30,5 +30,3 @@ class LoginUserSchema(BaseModel):
 class BaseRefreshTokenSchema(BaseModel):
     user_id: str
     time_out: datetime.datetime
-
-

@@ -27,7 +27,7 @@ class BaseUrlConfig(BaseSettings):
         frozen = True
 
 
-def create_token(data: dict, expires_delta: Optional[timedelta] = None):
+def create_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -38,6 +38,5 @@ def create_token(data: dict, expires_delta: Optional[timedelta] = None):
     return token
 
 
-def decode_token(token: str):
+def decode_token(token: str) -> dict:
     return jwt.decode(token, os.environ['SECRET_KEY'], algorithms='HS256')
-

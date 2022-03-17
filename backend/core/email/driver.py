@@ -25,4 +25,3 @@ class Mail:
 
 
 mail = Mail(mail_auth.user, mail_auth.password)
-
