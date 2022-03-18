@@ -1,11 +1,11 @@
 import {createWebHistory, createRouter} from "vue-router";
-import Authorization from '../views/Authorization.vue';
-import LoginForm from '../components/Authorization/LoginForm.vue';
-import RegistrationForm from '../components/Authorization/RegistrationForm.vue';
-import RegistrationConfirmForm from '../components/Authorization/RegistrationConfirmForm.vue';
-import EmailConfirmForm from '../components/Authorization/EmailConfirmForm.vue';
-import WorkSpace from '../views/WorkSpace.vue';
-import Tree from '../components/FamilyTree/Tree.vue';
+const Authorization = () => import('../views/Authorization.vue');
+const LoginForm = () => import('../components/Authorization/LoginForm.vue');
+const RegistrationForm = () => import('../components/Authorization/RegistrationForm.vue');
+const RegistrationConfirmForm = () => import('../components/Authorization/RegistrationConfirmForm.vue');
+const EmailConfirmForm = () => import('../components/Authorization/EmailConfirmForm.vue');
+const WorkSpace = () => import('../views/WorkSpace.vue');
+const Tree = () => import('../components/FamilyTree/Tree.vue');
 import {store} from "../store";
 
 function confirmRegistration(to, from, next) {
@@ -40,7 +40,10 @@ const routes = [
             {
                 path: '/tree',
                 name: 'Tree',
-                component: Tree
+                component: Tree,
+                meta: {
+                    isAuth: true,
+                }
             }
         ]
     },
@@ -54,6 +57,7 @@ const routes = [
                 component: EmailConfirmForm,
                 beforeEnter: [activateAccount],
                 meta: {
+                    isAuth: false,
                     title: 'Ваш аккаунт подтвержден',
                     link: 'Login',
                     textLink: 'Войдите в систему'
@@ -64,6 +68,7 @@ const routes = [
                 name: 'Login',
                 component: LoginForm,
                 meta: {
+                    isAuth: false,
                     title: 'Войдите в свой аккаунт',
                     link: 'Registration',
                     textLink: 'или зарегестрируйтесь'
@@ -74,6 +79,7 @@ const routes = [
                 name: 'Registration',
                 component: RegistrationForm,
                 meta: {
+                    isAuth: false,
                     title: 'Зарегестрируйте аккаунт',
                     link: 'Login',
                     textLink: 'или войдите в систему'
@@ -85,6 +91,7 @@ const routes = [
                 component: RegistrationConfirmForm,
                 beforeEnter: [confirmRegistration],
                 meta: {
+                    isAuth: false,
                     title: 'Успешно. Проверьте свою почту.',
                     link: 'Login',
                     textLink: 'а после войдите в систему'
@@ -92,9 +99,34 @@ const routes = [
             },
         ]
     }
+    // {
+    //     path: '/:catchAll(.*)*',
+    //     name: "PageNotFound",
+    //     component: PageNotFound,
+    // },
 ]
 
 export const router = createRouter({
     history: createWebHistory(),
     routes,
+})
+
+
+router.beforeEach(async (to, from, next) => {
+    if(store.getters.isAuthenticated === null) {
+        await store.dispatch('refresh')
+    }
+    if(store.getters.isAuthenticated) {
+        if(to.meta.isAuth) {
+            next()
+        } else {
+            next({name: 'Tree'})
+        }
+    } else {
+        if(to.meta.isAuth) {
+            next({name: 'Login'})
+        } else {
+            next()
+        }
+    }
 })

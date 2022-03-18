@@ -36,6 +36,17 @@ async def refresh(request: Request) -> Response | str:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
 
 
+@app_authentication.get('/logout', **logout_user_url_config.dict())
+async def logout(request: Request, response: Response, refresh_crud: RefreshTokenCrud = Depends(refresh_token_crud)) -> Response | None:
+    if not request.scope['user']:
+        return Response(status_code=status.HTTP_403_FORBIDDEN)
+    else:
+        await refresh_crud.delete(request.cookies['refresh_token'])
+        response.delete_cookie(key='refresh_token', httponly=True, path='api/')
+        response.status_code = status.HTTP_200_OK
+        return
+
+
 @app_authentication.get('/{user_id}', **get_user_url_config.dict())
 async def get_user(user_id: str, crud: UserCrud = Depends(user_crud)) -> UserSchemaGet | Response:
     user = await crud.get(user_id)
@@ -125,14 +136,3 @@ async def login(user: LoginUserSchema, response: Response, crud: UserCrud = Depe
         return access_token
     else:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
-
-
-@app_authentication.post('/logout', **logout_user_url_config.dict())
-async def logout(request: Request, response: Response, refresh_crud: RefreshTokenCrud = Depends(refresh_token_crud)) -> Response | None:
-    if not request.scope['user']:
-        return Response(status_code=status.HTTP_403_FORBIDDEN)
-    else:
-        await refresh_crud.delete(request.cookies['refresh_token'])
-        response.delete_cookie(key='refresh_token', httponly=True, path='api/')
-        response.status_code = status.HTTP_200_OK
-        return

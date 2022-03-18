@@ -37,6 +37,7 @@
 import TextField from "../UI/Input/TextField.vue";
 import Btn from "../UI/Button/Btn.vue";
 import NavLink from "../UI/Link/NavLink.vue";
+import axios from "../../plugins/axios";
 import {useRouter} from 'vue-router';
 import {useStore} from 'vuex';
 import {ref} from "vue";
@@ -54,7 +55,11 @@ function confirmLogin() {
       username: username.value,
       password: password.value
     })
-  .then(() => router.push({name: 'Tree'}))
+  .then(r => {
+    axios.defaults.headers.common['x-access-token'] = r.data
+    store.commit('setAuthenticatedStatus', true)
+    router.push({name: 'Tree'})
+  })
   .catch(e => {
     if(e.toJSON().status === 403) {
       msgError.value = 'Проверьте введенные данные'
