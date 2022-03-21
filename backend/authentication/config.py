@@ -117,7 +117,7 @@ login_user_url_config = AuthenticationUrlConfig(
     responses={
         status.HTTP_403_FORBIDDEN: ResponseDescription.NO_CONTENT.value
     },
-    response_model=str,
+    response_model=dict,
     status_code=status.HTTP_200_OK
 )
 
@@ -139,6 +139,6 @@ refresh_url_config = AuthenticationUrlConfig(
     responses={
         status.HTTP_403_FORBIDDEN: ResponseDescription.NO_CONTENT.value
     },
-    response_model=str,
+    response_model=dict,
     status_code=status.HTTP_200_OK
 )

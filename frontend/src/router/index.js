@@ -6,7 +6,7 @@ const RegistrationConfirmForm = () => import('../components/Authorization/Regist
 const EmailConfirmForm = () => import('../components/Authorization/EmailConfirmForm.vue');
 const WorkSpace = () => import('../views/WorkSpace.vue');
 const Tree = () => import('../components/FamilyTree/Tree.vue');
-import {store} from "../store";
+import store from "../store";
 
 function confirmRegistration(to, from, next) {
     if(from.name !== 'Registration') {
@@ -106,17 +106,15 @@ const routes = [
     // },
 ]
 
-export const router = createRouter({
+const router = createRouter({
     history: createWebHistory(),
     routes,
 })
 
 
 router.beforeEach(async (to, from, next) => {
-    if(store.getters.isAuthenticated === null) {
-        await store.dispatch('refresh')
-    }
-    if(store.getters.isAuthenticated) {
+    await store.dispatch('refreshToken')
+    if(store.getters.accessToken) {
         if(to.meta.isAuth) {
             next()
         } else {
@@ -130,3 +128,5 @@ router.beforeEach(async (to, from, next) => {
         }
     }
 })
+
+export default router

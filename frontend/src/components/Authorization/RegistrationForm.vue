@@ -1,8 +1,5 @@
 <template>
   <form class="mt-8 space-y-6" @submit.prevent="confirmRegistration">
-    <div v-if="msgError" class="flex justify-center bg-red-500 px-8 py-2 text-white">
-      {{msgError}}
-    </div>
     <input type="hidden" name="remember" value="true">
     <div class="rounded-md shadow-sm -space-y-px">
       <text-field
@@ -50,19 +47,15 @@
 <script setup>
 import TextField from "../UI/Input/TextField.vue";
 import Btn from "../UI/Button/Btn.vue";
-import {useRouter} from 'vue-router';
 import {useStore} from 'vuex';
 import {ref} from "vue";
 
-const router = useRouter()
 const store = useStore()
 
 const username = ref("")
 const email = ref("")
 const password = ref("")
 const confirmPassword = ref("")
-
-const msgError = ref(null)
 
 function confirmRegistration() {
   if(password.value === confirmPassword.value) {
@@ -71,16 +64,6 @@ function confirmRegistration() {
       email: email.value,
       password: password.value
     })
-    .then(() => router.push({name: 'RegistrationConfirm'}))
-    .catch(e => {
-      if(e.toJSON().status === 409) {
-        msgError.value = 'Данный email уже используется'
-      } else {
-        msgError.value = e
-      }
-    })
-  } else {
-    msgError.value = 'Пароли должны совпадать'
   }
 }
 </script>
