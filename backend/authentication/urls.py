@@ -24,16 +24,27 @@ app_authentication = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch
 
 
 @app_authentication.get('/refresh', **refresh_url_config.dict())
-async def refresh(request: Request) -> Response | str:
+async def refresh(request: Request) -> Response | dict:
     refresh_token = request.cookies.get('refresh_token')
     if refresh_token:
         new_access_token = await update_refresh_token(refresh_token)
         if new_access_token:
-            return new_access_token
+            return {'access_token': new_access_token, 'time_out': decode_token(new_access_token)['exp']}
         else:
             return Response(status_code=status.HTTP_403_FORBIDDEN)
     else:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
+
+
+@app_authentication.get('/logout', **logout_user_url_config.dict())
+async def logout(request: Request, response: Response, refresh_crud: RefreshTokenCrud = Depends(refresh_token_crud)) -> Response | None:
+    if not request.scope['user']:
+        return Response(status_code=status.HTTP_403_FORBIDDEN)
+    else:
+        await refresh_crud.delete(request.cookies['refresh_token'])
+        response.delete_cookie(key='refresh_token', httponly=True, path='api/')
+        response.status_code = status.HTTP_200_OK
+        return
 
 
 @app_authentication.get('/{user_id}', **get_user_url_config.dict())
@@ -113,7 +124,7 @@ async def activate_user(registration_token: str, crud: UserCrud = Depends(user_c
 
 
 @app_authentication.post('/login', **login_user_url_config.dict())
-async def login(user: LoginUserSchema, response: Response, crud: UserCrud = Depends(user_crud)) -> Response | str:
+async def login(user: LoginUserSchema, response: Response, crud: UserCrud = Depends(user_crud)) -> Response | dict:
     user.password = hash_password(user.password)
     data_base_user = await crud.find({'username': user.username})
     if data_base_user and data_base_user['password'] == user.password:
@@ -122,17 +133,6 @@ async def login(user: LoginUserSchema, response: Response, crud: UserCrud = Depe
         response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, path='api/',
                             max_age=get_refresh_cookies_age(90))
         response.status_code = status.HTTP_200_OK
-        return access_token
+        return {'access_token': access_token, 'time_out': decode_token(access_token)['exp']}
     else:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
-
-
-@app_authentication.post('/logout', **logout_user_url_config.dict())
-async def logout(request: Request, response: Response, refresh_crud: RefreshTokenCrud = Depends(refresh_token_crud)) -> Response | None:
-    if not request.scope['user']:
-        return Response(status_code=status.HTTP_403_FORBIDDEN)
-    else:
-        await refresh_crud.delete(request.cookies['refresh_token'])
-        response.delete_cookie(key='refresh_token', httponly=True, path='api/')
-        response.status_code = status.HTTP_200_OK
-        return
