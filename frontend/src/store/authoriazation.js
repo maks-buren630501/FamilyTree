@@ -1,7 +1,6 @@
 import axios from "../plugins/axios";
 import router from "../router";
 import config from "../plugins/config";
-import store from "./index";
 
 export default {
     state: {
@@ -24,7 +23,7 @@ export default {
     },
     actions: {
         async registration({}, user) {
-            return await axios.post(config.url.registration, user)
+            return await axios.post(config.URL.REGISTRATION, user)
             .then(r => router.push({name: 'RegistrationConfirm'}))
             .catch(e => {})
         },
@@ -47,22 +46,17 @@ export default {
             return await axios.put(`${config.URL.ACTIVATE}/${key}`)
         },
         async refresh({commit}) {
-            await axios.get('authentication/refresh')
-                .then(r => {
-                    commit('setAuthenticationData', r.data)
-                })
-                .catch(e => {
-                    commit('removeAuthenticationData')
-                    router.push({name: 'Login'})
-                })
+            await axios.get(config.URL.REFRESH)
+                .then(r => commit('setAuthenticationData', r.data))
+                .catch(e => commit('removeAuthenticationData'))
         },
         async refreshToken({getters, dispatch}) {
             if(getters.accessToken) {
                 if(getters.accessTimeOut - new Date() <= 0) {
-                    await store.dispatch('refresh')
+                    await dispatch('refresh')
                 }
             } else if(getters.accessToken === null) {
-                await store.dispatch('refresh')
+                await dispatch('refresh')
             }
         }
     }
