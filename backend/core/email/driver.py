@@ -24,4 +24,4 @@ class Mail:
         self.server.close()
 
 
-mail = Mail(mail_auth.user, mail_auth.password)
+mail = Mail(mail_auth.mail_user, mail_auth.password)

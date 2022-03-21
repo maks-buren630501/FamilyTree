@@ -1,9 +1,11 @@
-from pydantic import BaseSettings, Field
+from pydantic import BaseSettings
+
+from backend.core.config import project_config
 
 
 class MailAuth(BaseSettings):
-    user: str = Field(..., env='mail_user')
-    password: str = Field(..., env='mail_password')
+    mail_user: str = project_config['email']['mail_user']
+    password: str = project_config['email']['mail_password']
 
     class Config:
         frozen = True

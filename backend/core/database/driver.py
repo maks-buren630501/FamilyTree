@@ -1,3 +1,4 @@
+from backend.core.config import project_config
 from backend.core.database.config import mongo_url
 import motor.motor_asyncio
 
@@ -20,9 +21,9 @@ class DatabaseClient:
 database_client = None
 
 
-def init_database_client(name: str = 'FamilyTree'):
+def init_database_client():
     global database_client
-    database_client = DatabaseClient(name)
+    database_client = DatabaseClient(project_config['database']['database_name'])
 
 
 def get_database():

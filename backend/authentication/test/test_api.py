@@ -11,7 +11,7 @@ from backend.main import app
 class UserCrudTestCase(IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self):
-        init_database_client(name='testFamilyTree')
+        init_database_client()
         self.connection = get_database()
         self.crud = UserCrud()
 
