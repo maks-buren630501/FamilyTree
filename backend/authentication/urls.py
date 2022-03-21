@@ -24,14 +24,16 @@ app_authentication = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch
 
 
 @app_authentication.get('/refresh', **refresh_url_config.dict())
-async def refresh(request: Request) -> Response | dict:
+async def refresh(request: Request, response: Response) -> Response | dict:
     refresh_token = request.cookies.get('refresh_token')
     if refresh_token:
         new_access_token = await update_refresh_token(refresh_token)
         if new_access_token:
             return {'access_token': new_access_token, 'time_out': decode_token(new_access_token)['exp']}
         else:
-            return Response(status_code=status.HTTP_403_FORBIDDEN)
+            response.delete_cookie(key='refresh_token', httponly=True, path='api/')
+            response.status_code = status.HTTP_403_FORBIDDEN
+            return {}
     else:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
 
@@ -41,8 +43,9 @@ async def logout(request: Request, response: Response, refresh_crud: RefreshToke
     if not request.scope['user']:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
     else:
-        await refresh_crud.delete(request.cookies['refresh_token'])
-        response.delete_cookie(key='refresh_token', httponly=True, path='api/')
+        if request.cookies.get('refresh_token'):
+            await refresh_crud.delete(request.cookies['refresh_token'])
+            response.delete_cookie(key='refresh_token', httponly=True, path='api/')
         response.status_code = status.HTTP_200_OK
         return
 
@@ -127,7 +130,7 @@ async def activate_user(registration_token: str, crud: UserCrud = Depends(user_c
 async def login(user: LoginUserSchema, response: Response, crud: UserCrud = Depends(user_crud)) -> Response | dict:
     user.password = hash_password(user.password)
     data_base_user = await crud.find({'username': user.username})
-    if data_base_user and data_base_user['password'] == user.password:
+    if data_base_user and data_base_user['password'] == user.password and data_base_user['active']:
         access_token = create_login_token(data_base_user['id'])
         refresh_token = await new_refresh_token(data_base_user['id'])
         response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, path='api/',
