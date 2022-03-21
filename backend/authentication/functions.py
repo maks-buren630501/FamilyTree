@@ -13,7 +13,7 @@ def hash_password(password) -> bytes:
     return hashlib.pbkdf2_hmac(
         'sha256',  # Используемый алгоритм хеширования
         password.encode('utf-8'),  # Конвертирование пароля в байты
-        project_config['authentication']['salt'],  # Предоставление соли
+        project_config['authentication']['salt'].encode(),  # Предоставление соли
         100000,  # Рекомендуется использоваться по крайней мере 100000 итераций SHA-256
         dklen=128  # Получает ключ в 128 байтов
     )
