@@ -1,19 +1,19 @@
 import datetime
 import hashlib
-import os
 
 from datetime import timedelta
 
 from backend.authentication.crud import RefreshTokenCrud
 from backend.authentication.schemas import BaseRefreshTokenSchema
 from backend.core.additional import create_token
+from backend.core.config import project_config
 
 
 def hash_password(password) -> bytes:
     return hashlib.pbkdf2_hmac(
         'sha256',  # Используемый алгоритм хеширования
         password.encode('utf-8'),  # Конвертирование пароля в байты
-        os.environ['salt'].encode(),  # Предоставление соли
+        project_config['authentication']['salt'],  # Предоставление соли
         100000,  # Рекомендуется использоваться по крайней мере 100000 итераций SHA-256
         dklen=128  # Получает ключ в 128 байтов
     )

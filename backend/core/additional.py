@@ -1,9 +1,10 @@
-import os
 from datetime import timedelta, datetime
 from typing import Callable, Optional
 
 from jose import jwt
 from pydantic import BaseSettings
+
+from backend.core.config import project_config
 
 
 def singleton(class_):
@@ -34,9 +35,9 @@ def create_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     else:
         expire = datetime.utcnow() + timedelta(days=1)
     to_encode.update({"exp": expire})
-    token = jwt.encode(to_encode, os.environ['SECRET_KEY'], algorithm='HS256')
+    token = jwt.encode(to_encode, project_config['authentication']['secret_key'], algorithm='HS256')
     return token
 
 
 def decode_token(token: str) -> dict:
-    return jwt.decode(token, os.environ['SECRET_KEY'], algorithms='HS256')
+    return jwt.decode(token, project_config['authentication']['secret_key'], algorithms='HS256')
