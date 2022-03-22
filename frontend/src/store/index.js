@@ -1,8 +1,8 @@
 import { createStore } from 'vuex';
-import authoriazation from "./authoriazation";
+import authorization from "./authorization";
 
 export default createStore({
     modules: {
-        authoriazation
+        authorization
     }
 })

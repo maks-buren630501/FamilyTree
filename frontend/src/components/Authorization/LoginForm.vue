@@ -23,7 +23,7 @@
     </div>
 
     <div class="flex items-center justify-end text-sm">
-      <nav-link :to="{name: 'Registration'}">Забыли свой пароль?</nav-link>
+      <nav-link :to="{name: 'ForgotPassword'}">Забыли свой пароль?</nav-link>
     </div>
 
     <btn type="submit">Войти</btn>
