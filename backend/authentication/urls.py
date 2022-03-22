@@ -25,16 +25,16 @@ from backend.core.middleware import error_handler_middleware
 app_authentication = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_handler_middleware)])
 
 
-@app_authentication.get('/start_recovery_password')
+@app_authentication.get('/start_recovery_password')  # ToDo: Передавать в виде post-запроса
 async def start_recovery_password(email: EmailStr, crud: UserCrud = Depends(user_crud)) -> Response:
     data_base_user = await crud.find({'email': email})
     if data_base_user:
         password_recovery_token = create_password_recovery_token(data_base_user['id']).replace('.', '|')
         mail.send_message(email,
-                          f"Subject: Recovery password FamilyTree\nGo to link '127.0.0.1/recovery_password/{password_recovery_token}'")
+                          f"Subject: Recovery password FamilyTree\nGo to link '127.0.0.1/forgot/{password_recovery_token}'")
         return Response(status_code=status.HTTP_200_OK)
     else:
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)  # ToDo: Лучше ошибка
 
 
 @app_authentication.get('/check_recovery_password/{password_recovery_token}')
@@ -46,7 +46,7 @@ async def check_recovery_password(password_recovery_token: str) -> Response:
     if user_data.get('recovery'):
         return Response(status_code=status.HTTP_200_OK)
     else:
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)  # ToDo: Лучше ошибка
 
 
 @app_authentication.put('/recovery_password/{password_recovery_token}')
@@ -63,7 +63,7 @@ async def recovery_password(password_recovery_token: str, data: UpdatePasswordSc
         else:
             return Response(status_code=status.HTTP_204_NO_CONTENT)
     else:
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)  # ToDo: Лучше ошибка
 
 
 @app_authentication.get('/refresh', **refresh_url_config.dict())
@@ -167,7 +167,7 @@ async def activate_user(registration_token: str, crud: UserCrud = Depends(user_c
     if update_count:
         return Response(status_code=status.HTTP_201_CREATED)
     else:
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)  # ToDo: Лучше ошибка
 
 
 @app_authentication.post('/login', **login_user_url_config.dict())

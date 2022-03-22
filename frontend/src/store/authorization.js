@@ -58,6 +58,25 @@ export default {
             } else if(getters.accessToken === null) {
                 await dispatch('refresh')
             }
+        },
+        async forgotPasswordEmail({}, email) {
+            await axios.get(config.URL.FORGOT_PASSWORD_EMAIL, {params: {email}})
+                .then(r => {
+                    if(r.status === 200)  {
+                        router.push({name: 'ForgotPasswordConfirm'})
+                    }
+                })
+        },
+        async changePasswordPermission({}, key) {
+            return await axios.get(`${config.URL.CHANGE_PASSWORD_PERMISSION}/${key}`)
+        },
+        async changePassword({}, {password, key}) {
+            return await axios.put(`${config.URL.CHANGE_PASSWORD}/${key}`, {password})
+                .then(r => {
+                    if(r.status === 200) {
+                        router.push({name: 'ChangePasswordConfirm', params: {key}})
+                    }
+                })
         }
     }
 }

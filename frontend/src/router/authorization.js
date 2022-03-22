@@ -1,8 +1,8 @@
 const Authorization = () => import('../views/Authorization.vue');
 const LoginForm = () => import('../components/Authorization/LoginForm.vue');
 const RegistrationForm = () => import('../components/Authorization/RegistrationForm.vue');
-const RegistrationConfirmForm = () => import('../components/Authorization/RegistrationConfirmForm.vue');
-const EmailConfirmForm = () => import('../components/Authorization/EmailConfirmForm.vue');
+const ConfirmEmailForm = () => import('../components/Authorization/ConfirmEmailForm.vue');
+const ConfirmForm = () => import('../components/Authorization/ConfirmForm.vue');
 const ForgotPasswordForm = () => import('../components/Authorization/ForgotPasswordForm.vue');
 const ChangePasswordForm = () => import('../components/Authorization/ChangePasswordForm.vue');
 import store from "../store";
@@ -10,11 +10,41 @@ import store from "../store";
 
 
 function confirmRegistration(to, from, next) {
-    if(from.name !== 'Registration') {
-        next({name: 'Registration'})
-    } else {
+    if(from.name === 'Registration') {
         next()
+    } else {
+        next({name: 'Login'})
     }
+}
+
+function confirmPassword(to, from, next) {
+    if(from.name === 'ForgotPassword') {
+        next()
+    } else {
+        next({name: 'Login'})
+    }
+}
+
+function changePasswordConfirm(to, from, next) {
+    if(from.name === 'ChangePassword') {
+        next()
+    } else {
+        next({name: 'Login'})
+    }
+}
+
+function changePasswordPermission(to, from, next) {
+    store.dispatch('changePasswordPermission', to.params.key)
+        .then(r => {
+            if(r.status === 204) {
+                next({name: 'Login'})
+            } else {
+                next()
+            }
+        })
+        .catch(e => {
+            next({name: 'Login'})
+        })
 }
 
 
@@ -32,14 +62,6 @@ function activateAccount(to, from, next) {
         })
 }
 
-function changePasswordConfirm(to, from, next) {
-    if(from.name === 'ChangePassword') {
-        next()
-    } else {
-        next({name: 'Login'})
-    }
-}
-
 
 export default {
     path: '/',
@@ -48,7 +70,7 @@ export default {
         {
             path: 'email_confirm/:key',
             name: 'EmailConfirm',
-            component: EmailConfirmForm,
+            component: ConfirmForm,
             beforeEnter: [activateAccount],
             meta: {
                 isAuth: false,
@@ -82,7 +104,7 @@ export default {
         {
             path: '/registration_confirm',
             name: 'RegistrationConfirm',
-            component: RegistrationConfirmForm,
+            component: ConfirmEmailForm,
             beforeEnter: [confirmRegistration],
             meta: {
                 isAuth: false,
@@ -92,7 +114,7 @@ export default {
             }
         },
         {
-            path: '/forgot_password',
+            path: '/forgot',
             name: 'ForgotPassword',
             component: ForgotPasswordForm,
             meta: {
@@ -101,19 +123,31 @@ export default {
             }
         },
         {
-            path: '/forgot_password/:key',
+            path: '/forgot/confirm',
+            name: 'ForgotPasswordConfirm',
+            component: ConfirmEmailForm,
+            beforeEnter: [confirmPassword],
+            meta: {
+                isAuth: false,
+                title: 'Успешно. Проверьте свою почту.',
+                link: 'Login',
+                textLink: 'а после войдите в систему'
+            }
+        },
+        {
+            path: '/forgot/:key',
             name: 'ChangePassword',
             component: ChangePasswordForm,
-            // beforeEnter: [activateAccount],
+            beforeEnter: [changePasswordPermission],
             meta: {
                 isAuth: false,
                 title: 'Введите новый пароль'
             }
         },
         {
-            path: '/forgot_password/:key/success',
+            path: '/forgot/:key/success',
             name: 'ChangePasswordConfirm',
-            component: EmailConfirmForm,
+            component: ConfirmForm,
             beforeEnter: [changePasswordConfirm],
             meta: {
                 isAuth: false,

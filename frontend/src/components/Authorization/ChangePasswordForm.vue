@@ -30,16 +30,18 @@
 import TextField from "../UI/Input/TextField.vue";
 import Btn from "../UI/Button/Btn.vue";
 import {useStore} from "vuex";
+import {useRoute} from "vue-router";
 import {ref} from "vue";
 
 const store = useStore()
+const route = useRoute()
 
 const password = ref("")
 const confirmPassword = ref("")
 
 function confirmChangePassword() {
   if(password.value === confirmPassword.value) {
-    console.log('confirmChangePassword')
+    store.dispatch('changePassword', {password: password.value, key: route.params.key})
   }
 }
 </script>
