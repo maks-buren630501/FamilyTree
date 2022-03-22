@@ -1,4 +1,6 @@
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 from backend.core.additional import singleton
 from backend.core.email.config import mail_auth
@@ -17,8 +19,14 @@ class Mail:
             print('error mail connection', e)
             exit()
 
-    def send_message(self, to, text):
-        self.server.sendmail(self.user, to, text)
+    def send_message(self, to: str, subject: str, text: str):
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = self.user
+        msg['To'] = to
+        part2 = MIMEText(text, 'html')
+        msg.attach(part2)
+        self.server.sendmail(self.user, to, msg.as_string())
 
     def __del__(self):
         self.server.close()
