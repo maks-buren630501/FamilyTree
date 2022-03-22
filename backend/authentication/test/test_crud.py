@@ -5,7 +5,7 @@ from backend.authentication.functions import create_refresh_token
 from backend.core.database.driver import init_database_client, get_database
 
 
-class UserCrudTestCase(IsolatedAsyncioTestCase):
+class AuthenticationCrudTestCase(IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self):
         init_database_client()

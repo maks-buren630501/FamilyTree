@@ -60,7 +60,7 @@ async def login(user: LoginUserSchema, response: Response, crud: UserCrud = Depe
     if data_base_user and data_base_user['password'] == user.password and data_base_user['active']:
         access_token = create_login_token(data_base_user['id'])
         refresh_token = await new_refresh_token(data_base_user['id'])
-        response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, path='api/',
+        response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, path='/',
                             max_age=get_refresh_cookies_age(90))
         response.status_code = status.HTTP_200_OK
         return {'access_token': access_token, 'time_out': decode_token(access_token)['exp']}
@@ -76,7 +76,7 @@ async def refresh(request: Request, response: Response) -> Response | dict:
         if new_access_token:
             return {'access_token': new_access_token, 'time_out': decode_token(new_access_token)['exp']}
         else:
-            response.delete_cookie(key='refresh_token', httponly=True, path='api/')
+            response.delete_cookie(key='refresh_token', httponly=True, path='/')
             response.status_code = status.HTTP_403_FORBIDDEN
             return {}
     else:
@@ -90,7 +90,7 @@ async def logout(request: Request, response: Response, refresh_crud: RefreshToke
     else:
         if request.cookies.get('refresh_token'):
             await refresh_crud.delete(request.cookies['refresh_token'])
-            response.delete_cookie(key='refresh_token', httponly=True, path='api/')
+            response.delete_cookie(key='refresh_token', httponly=True, path='/')
         response.status_code = status.HTTP_200_OK
         return
 
