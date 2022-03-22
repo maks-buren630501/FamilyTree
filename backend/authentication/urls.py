@@ -167,7 +167,7 @@ async def activate_user(registration_token: str, crud: UserCrud = Depends(user_c
     if update_count:
         return Response(status_code=status.HTTP_201_CREATED)
     else:
-        return Response(status_code=status.HTTP_204_NO_CONTENT)  # ToDo: Лучше ошибка
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
 @app_authentication.post('/login', **login_user_url_config.dict())

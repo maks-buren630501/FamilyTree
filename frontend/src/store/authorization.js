@@ -60,12 +60,9 @@ export default {
             }
         },
         async forgotPasswordEmail({}, email) {
-            await axios.get(config.URL.FORGOT_PASSWORD_EMAIL, {params: {email}})
-                .then(r => {
-                    if(r.status === 200)  {
-                        router.push({name: 'ForgotPasswordConfirm'})
-                    }
-                })
+            await axios.post(config.URL.FORGOT_PASSWORD_EMAIL, {email})
+                .then(r => router.push({name: 'ForgotPasswordConfirm'}))
+                .catch(e => {})
         },
         async changePasswordPermission({}, key) {
             return await axios.get(`${config.URL.CHANGE_PASSWORD_PERMISSION}/${key}`)
