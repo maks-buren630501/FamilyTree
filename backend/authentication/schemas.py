@@ -26,6 +26,10 @@ class UpdatePasswordSchema(BaseModel):
     password: str
 
 
+class RecoveryPasswordSchema(BaseModel):
+    email: EmailStr
+
+
 class LoginUserSchema(BaseModel):
     username: str
     password: str
