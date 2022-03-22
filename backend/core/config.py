@@ -1,8 +1,33 @@
 import json
 import os
+from enum import Enum
 
 import yaml
 from pydantic.tools import lru_cache
+
+
+class ResponseDescription(Enum):
+    CONFLICT: Enum = {
+        "description": "Ошибка проверки уникальности значений",
+        "content": {
+            "application/json": {
+                "example": {
+                    "detail": [
+                        {
+                          "loc": [
+                            "string"
+                          ],
+                          "msg": "string",
+                          "type": "string"
+                        }
+                      ]
+                }
+            }
+        }
+    }
+    NO_CONTENT: Enum = {
+        "description": "Пустой ответ"
+    }
 
 
 @lru_cache
