@@ -22,6 +22,10 @@ class UpdateUserSchema(BaseModel):
     password: str | None
 
 
+class UpdatePasswordSchema(BaseModel):
+    password: str
+
+
 class LoginUserSchema(BaseModel):
     username: str
     password: str

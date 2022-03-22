@@ -23,6 +23,10 @@ def create_registration_token(user_id: str) -> str:
     return create_token({'user_id': user_id}, timedelta(days=15))
 
 
+def create_password_recovery_token(user_id: str) -> str:
+    return create_token({'user_id': user_id, 'recovery': True}, timedelta(minutes=15))
+
+
 def create_login_token(user_id: str) -> str:
     return create_token({'user_id': user_id}, timedelta(minutes=10))
 
