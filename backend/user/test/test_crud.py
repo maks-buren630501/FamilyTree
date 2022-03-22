@@ -24,7 +24,7 @@ class UserCrudTestCase(IsolatedAsyncioTestCase):
         self.assertEqual(user_data['email'], 'pushkin@mail.com')
         self.assertEqual(user_data['password'], b'veverbi344')
 
-    async def test_get_user_by_wrong_id(self):
+    async def test_get_user_by_wroregistrationng_id(self):
         user_data = await self.crud.get('2437328459ettb')
         self.assertIsNone(user_data)
 

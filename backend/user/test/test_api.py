@@ -8,7 +8,7 @@ from backend.core.database.driver import init_database_client, get_database
 from backend.main import app
 
 
-class UserCrudTestCase(IsolatedAsyncioTestCase):
+class UserApiTestCase(IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self):
         init_database_client()
