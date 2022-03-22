@@ -1,8 +1,4 @@
-from backend.authentication.crud import UserCrud, RefreshTokenCrud
-
-
-def user_crud():
-    return UserCrud()
+from backend.authentication.crud import RefreshTokenCrud
 
 
 def refresh_token_crud():

@@ -1,4 +1,4 @@
-from backend.authentication.crud import UserCrud
+from backend.user.crud import UserCrud
 from backend.core.database.driver import init_database_client, get_database
 
 from unittest import IsolatedAsyncioTestCase
