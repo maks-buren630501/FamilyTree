@@ -2,6 +2,7 @@ from typing import List
 
 from fastapi import FastAPI, Response, status, Depends
 from jose import JWTError
+from pydantic import EmailStr
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -11,9 +12,10 @@ from backend.authentication.config import get_users_url_config, get_user_url_con
     login_user_url_config, logout_user_url_config, refresh_url_config
 from backend.authentication.crud import UserCrud, RefreshTokenCrud
 from backend.authentication.dependence import user_crud, refresh_token_crud
-from backend.authentication.schemas import UserSchemaGet, UserSchemaCreate, UpdateUserSchema, LoginUserSchema
+from backend.authentication.schemas import UserSchemaGet, UserSchemaCreate, UpdateUserSchema, LoginUserSchema, \
+    UpdatePasswordSchema
 from backend.authentication.functions import hash_password, create_registration_token, create_login_token, \
-    new_refresh_token, get_refresh_cookies_age, update_refresh_token
+    new_refresh_token, get_refresh_cookies_age, update_refresh_token, create_password_recovery_token
 from backend.core.additional import decode_token
 from backend.core.email.driver import mail
 from backend.core.exception.base_exeption import UniqueIndexException
@@ -21,6 +23,47 @@ from backend.core.exception.http_exeption import NotUniqueIndex, TokenError
 from backend.core.middleware import error_handler_middleware
 
 app_authentication = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_handler_middleware)])
+
+
+@app_authentication.get('/start_recovery_password')
+async def start_recovery_password(email: EmailStr, crud: UserCrud = Depends(user_crud)) -> Response:
+    data_base_user = await crud.find({'email': email})
+    if data_base_user:
+        password_recovery_token = create_password_recovery_token(data_base_user['id']).replace('.', '|')
+        mail.send_message(email,
+                          f"Subject: Recovery password FamilyTree\nGo to link '127.0.0.1/recovery_password/{password_recovery_token}'")
+        return Response(status_code=status.HTTP_200_OK)
+    else:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app_authentication.get('/check_recovery_password/{password_recovery_token}')
+async def check_recovery_password(password_recovery_token: str) -> Response:
+    try:
+        user_data = decode_token(password_recovery_token.replace('|', '.'))
+    except JWTError as e:
+        raise TokenError(e)
+    if user_data.get('recovery'):
+        return Response(status_code=status.HTTP_200_OK)
+    else:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app_authentication.put('/recovery_password/{password_recovery_token}')
+async def recovery_password(password_recovery_token: str, data: UpdatePasswordSchema, crud: UserCrud = Depends(user_crud)) -> Response:
+    try:
+        user_data = decode_token(password_recovery_token.replace('|', '.'))
+    except JWTError as e:
+        raise TokenError(e)
+    if user_data.get('recovery'):
+        password = hash_password(data.password)
+        update_count = await crud.update(user_data['user_id'], {'password': password})
+        if update_count:
+            return Response(status_code=status.HTTP_200_OK)
+        else:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+    else:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app_authentication.get('/refresh', **refresh_url_config.dict())
@@ -104,7 +147,8 @@ async def registration_user(user: UserSchemaCreate, crud: UserCrud = Depends(use
         new_user = await crud.create({**user.dict(), **{'active': False}})
         try:
             registration_token = create_registration_token(new_user).replace('.', '|')
-            mail.send_message(user.email, f"Subject: Activate account FamilyTree\nGo to link '127.0.0.1/email_confirm/{registration_token}'")
+            mail.send_message(user.email,
+                              f"Subject: Activate account FamilyTree\nGo to link '127.0.0.1/{registration_token}'")
             return new_user
         except Exception as e:
             await crud.delete(new_user)
@@ -139,3 +183,4 @@ async def login(user: LoginUserSchema, response: Response, crud: UserCrud = Depe
         return {'access_token': access_token, 'time_out': decode_token(access_token)['exp']}
     else:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
+
