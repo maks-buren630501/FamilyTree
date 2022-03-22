@@ -13,7 +13,7 @@ from backend.authentication.config import get_users_url_config, get_user_url_con
 from backend.authentication.crud import UserCrud, RefreshTokenCrud
 from backend.authentication.dependence import user_crud, refresh_token_crud
 from backend.authentication.schemas import UserSchemaGet, UserSchemaCreate, UpdateUserSchema, LoginUserSchema, \
-    UpdatePasswordSchema
+    UpdatePasswordSchema, RecoveryPasswordSchema
 from backend.authentication.functions import hash_password, create_registration_token, create_login_token, \
     new_refresh_token, get_refresh_cookies_age, update_refresh_token, create_password_recovery_token
 from backend.core.additional import decode_token
@@ -25,16 +25,16 @@ from backend.core.middleware import error_handler_middleware
 app_authentication = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_handler_middleware)])
 
 
-@app_authentication.get('/start_recovery_password')  # ToDo: Передавать в виде post-запроса
-async def start_recovery_password(email: EmailStr, crud: UserCrud = Depends(user_crud)) -> Response:
-    data_base_user = await crud.find({'email': email})
+@app_authentication.post('/start_recovery_password')
+async def start_recovery_password(data: RecoveryPasswordSchema, crud: UserCrud = Depends(user_crud)) -> Response:
+    data_base_user = await crud.find({'email': data.email})
     if data_base_user:
         password_recovery_token = create_password_recovery_token(data_base_user['id']).replace('.', '|')
-        mail.send_message(email,
+        mail.send_message(data.email,
                           f"Subject: Recovery password FamilyTree\nGo to link '127.0.0.1/forgot/{password_recovery_token}'")
         return Response(status_code=status.HTTP_200_OK)
     else:
-        return Response(status_code=status.HTTP_204_NO_CONTENT)  # ToDo: Лучше ошибка
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
 @app_authentication.get('/check_recovery_password/{password_recovery_token}')
@@ -46,7 +46,7 @@ async def check_recovery_password(password_recovery_token: str) -> Response:
     if user_data.get('recovery'):
         return Response(status_code=status.HTTP_200_OK)
     else:
-        return Response(status_code=status.HTTP_204_NO_CONTENT)  # ToDo: Лучше ошибка
+        return Response(status_code=status.HTTP_403_FORBIDDEN)
 
 
 @app_authentication.put('/recovery_password/{password_recovery_token}')
@@ -63,7 +63,7 @@ async def recovery_password(password_recovery_token: str, data: UpdatePasswordSc
         else:
             return Response(status_code=status.HTTP_204_NO_CONTENT)
     else:
-        return Response(status_code=status.HTTP_204_NO_CONTENT)  # ToDo: Лучше ошибка
+        return Response(status_code=status.HTTP_403_FORBIDDEN)
 
 
 @app_authentication.get('/refresh', **refresh_url_config.dict())

@@ -39,5 +39,4 @@ class TokenError(HTTPException):
         else:
             self.message = 'unknow token error'
             self.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-        self.status_code = status.HTTP_409_CONFLICT
         super().__init__(detail={'message': self.message}, status_code=self.status_code)
