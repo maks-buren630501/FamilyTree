@@ -35,31 +35,15 @@ function changePasswordConfirm(to, from, next) {
 
 function changePasswordPermission(to, from, next) {
     store.dispatch('changePasswordPermission', to.params.key)
-        .then(r => {
-            if(r.status === 204) {
-                next({name: 'Login'})
-            } else {
-                next()
-            }
-        })
-        .catch(e => {
-            next({name: 'Login'})
-        })
+        .then(r => next())
+        .catch(e => next({name: 'Login'}))
 }
 
 
 function activateAccount(to, from, next) {
     store.dispatch('activate', to.params.key)
-        .then(r => {
-            if(r.status === 204) {
-                next({name: 'Login'})
-            } else {
-                next()
-            }
-        })
-        .catch(e => {
-            next({name: 'Login'})
-        })
+        .then(r => next())
+        .catch(e => next({name: 'Login'}))
 }
 
 
@@ -67,18 +51,6 @@ export default {
     path: '/',
     component: Authorization,
     children: [
-        {
-            path: 'email_confirm/:key',
-            name: 'EmailConfirm',
-            component: ConfirmForm,
-            beforeEnter: [activateAccount],
-            meta: {
-                isAuth: false,
-                title: 'Ваш аккаунт подтвержден',
-                link: 'Login',
-                textLink: 'Войдите в систему'
-            }
-        },
         {
             path: '/authentication',
             name: 'Login',
