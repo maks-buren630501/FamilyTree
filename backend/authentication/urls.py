@@ -30,8 +30,12 @@ async def registration_user(user: UserSchemaCreate, crud: UserCrud = Depends(use
         new_user = await crud.create({**user.dict(), **{'active': False}})
         try:
             registration_token = create_registration_token(new_user).replace('.', '|')
-            mail.send_message(user.email,
-                              f"Subject: Activate account FamilyTree\nGo to link '127.0.0.1/{registration_token}'")
+            recovery_link = 'http://127.0.0.1:3000/'
+            mail.send_message(
+                user.email,
+                'Activate account FamilyTree',
+                f"Для активации аккаунта <a href=\"{recovery_link}{registration_token}\">перейдите по ссылке</a>"
+            )
             return new_user
         except Exception as e:
             await crud.delete(new_user)
@@ -100,8 +104,12 @@ async def start_recovery_password(data: RecoveryPasswordSchema, crud: UserCrud =
     data_base_user = await crud.find({'email': data.email})
     if data_base_user:
         password_recovery_token = create_password_recovery_token(data_base_user['id']).replace('.', '|')
-        mail.send_message(data.email,
-                          f"Subject: Recovery password FamilyTree\nGo to link '127.0.0.1/forgot/{password_recovery_token}'")
+        recovery_link = 'http://127.0.0.1:3000/forgot/'
+        mail.send_message(
+            data.email,
+            'Recovery password',
+            f"Для изменения пароля <a href=\"{recovery_link}{password_recovery_token}\">перейдите по ссылке</a>"
+        )
         return Response(status_code=status.HTTP_200_OK)
     else:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
