@@ -44,9 +44,9 @@ const password = ref("")
 
 function confirmLogin() {
   store.dispatch('login', {
-      username: username.value,
-      password: password.value
-    })
+    username: username.value,
+    password: password.value
+  })
 }
 </script>
 

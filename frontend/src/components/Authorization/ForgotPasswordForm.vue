@@ -28,7 +28,7 @@ const store = useStore()
 const email = ref("")
 
 function confirmForgotPassword() {
-  console.log('confirmForgotPassword')
+  store.dispatch('forgotPasswordEmail', email.value)
 }
 </script>
 
