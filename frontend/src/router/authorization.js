@@ -63,6 +63,18 @@ export default {
             }
         },
         {
+            path: '/:key',
+            name: 'EmailConfirm',
+            component: ConfirmForm,
+            beforeEnter: [activateAccount],
+            meta: {
+                isAuth: false,
+                title: 'Ваш аккаунт подтвержден',
+                link: 'Login',
+                textLink: 'Войдите в систему'
+            }
+        },
+        {
             path: '/registration',
             name: 'Registration',
             component: RegistrationForm,
