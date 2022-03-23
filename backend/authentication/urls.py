@@ -139,7 +139,6 @@ async def recovery_password(password_recovery_token: str, data: UpdatePasswordSc
         if update_count:
             return Response(status_code=status.HTTP_200_OK)
         else:
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
+            return Response(status_code=status.HTTP_406_NOT_ACCEPTABLE)
     else:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
-

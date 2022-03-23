@@ -10,7 +10,6 @@ export default {
             state.alerts.push(alert)
         },
         removeAlert: (state, alert) => {
-            console.log(state.alerts.findIndex(a => a === alert))
             state.alerts.splice(state.alerts.findIndex(a => a === alert), 1)
         }
     },
