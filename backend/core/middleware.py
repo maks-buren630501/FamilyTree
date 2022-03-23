@@ -1,9 +1,13 @@
+import traceback
+import uuid
+
 from jose import JWTError
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import Response
 
 from backend.core.additional import decode_token
+from backend.core.logger import log_request, log_error
 
 
 async def error_handler_middleware(request: Request, call_next) -> Response:
@@ -17,8 +21,9 @@ async def error_handler_middleware(request: Request, call_next) -> Response:
         response = await call_next(request)
         return response
     except Exception as e:
+        log_error(request.scope['request_id'], traceback.format_exc())
         try:
-            return Response(e.args, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(e.args[0], status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except TypeError:
             return Response('Error description is not json serialised', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except:
@@ -37,3 +42,19 @@ async def authentication_middleware(request: Request, call_next) -> Response:
         request.scope['user'] = None
     response = await call_next(request)
     return response
+
+
+async def log_middleware(request: Request, call_next) -> Response:
+    user = request.scope['user']
+    client_address = request.client.host
+    client_port = request.client.port
+    method = request.method
+    url = request.url
+    request_id = uuid.uuid4()
+    request.scope['request_id'] = request_id
+    response = await call_next(request)
+    response_status = response.status_code
+    log_request(request_id, method, url, client_address, client_port, user, response_status)
+    return response
+
+

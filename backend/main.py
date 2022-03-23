@@ -5,7 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from backend.core.database.driver import init_database_client
 from backend.authentication.urls import app_authentication
-from backend.core.middleware import authentication_middleware
+from backend.core.middleware import authentication_middleware, log_middleware
 from backend.tree.urls import app_tree
 from backend.user.urls import app_user
 
@@ -15,7 +15,8 @@ origins = [
 
 app = FastAPI(middleware=[
     Middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"], allow_credentials=True),
-    Middleware(BaseHTTPMiddleware, dispatch=authentication_middleware)
+    Middleware(BaseHTTPMiddleware, dispatch=authentication_middleware),
+    Middleware(BaseHTTPMiddleware, dispatch=log_middleware),
 ])
 
 app.mount('/authentication', app_authentication)
