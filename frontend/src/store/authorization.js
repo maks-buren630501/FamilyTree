@@ -52,7 +52,7 @@ export default {
         },
         async refreshToken({getters, dispatch}) {
             if(getters.accessToken) {
-                if(getters.accessTimeOut - new Date() <= 0) {
+                if(getters.accessTimeOut - new Date() - 600000 <= 0) {
                     await dispatch('refresh')
                 }
             } else if(getters.accessToken === null) {
