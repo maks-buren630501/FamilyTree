@@ -4,11 +4,12 @@
     <div class="rounded-md shadow-sm -space-y-px">
       <text-field
         v-model="username"
-        id="email-address"
+        id="username"
         name="username"
         type="username"
         autocomplete="username"
         placeholder="Username"
+        minlength="4"
         required
       ></text-field>
       <text-field
@@ -18,6 +19,7 @@
         type="password"
         autocomplete="current-password"
         placeholder="Пароль"
+        minlength="8"
         required
       ></text-field>
     </div>
