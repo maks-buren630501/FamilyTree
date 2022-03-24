@@ -3,31 +3,31 @@ import store from "../store";
 import config from "./config";
 
 const http = axios.create({
-  baseURL: 'http://127.0.0.1:8000/',
-  withCredentials: true
+    baseURL: 'http://127.0.0.1:8000/',
+    withCredentials: true
 })
 
 
 http.interceptors.request.use(
     async function (requestConfig) {
-        if(!config.EXTEND_ACCESS_URL.includes(requestConfig.url)) {
+        if (!config.EXTEND_ACCESS_URL.includes(requestConfig.url)) {
             await store.dispatch('refreshToken')
             requestConfig.headers.common['x-access-token'] = store.getters.accessToken
         }
         return requestConfig
-        },
+    },
     function (error) {
         return Promise.reject(error)
     }
 );
 
-function findValueByPrefix(object, prefix) {
-  for (const property in object) {
-    if (object.hasOwnProperty(property) &&
-       prefix.startsWith(property)) {
-       return object[property];
+function findValueByPrefix(prefix) {
+    for (const property in config.MESSAGE_STATUS_CODE) {
+        if (config.MESSAGE_STATUS_CODE.hasOwnProperty(property) &&
+            prefix.startsWith(property)) {
+            return config.MESSAGE_STATUS_CODE[property];
+        }
     }
-  }
 }
 
 http.interceptors.response.use(
@@ -36,12 +36,11 @@ http.interceptors.response.use(
     },
     async function (er) {
         const error = er.toJSON()
-        const url = error.config.url
-        const status = error.status
-        await store.dispatch('addAlert', {
-            type: 'error',
-            body: findValueByPrefix(config.MESSAGE_STATUS_CODE, url)[status]
-        })
+        const type = 'error'
+        const code = error.status
+        const time = new Date().toLocaleString('ru-RU', {dateStyle: "short", timeStyle: "short"})
+        const body = findValueByPrefix(error.config.url)[code] || 'Неизвестная ошибка сервера'
+        await store.dispatch('addAlert', {type, time, body, code})
         return Promise.reject(er);
     }
 );

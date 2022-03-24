@@ -9,6 +9,7 @@
         type="text"
         autocomplete="username"
         placeholder="Логин пользователя"
+        minlength="4"
         required
       ></text-field>
       <text-field
@@ -27,6 +28,7 @@
         type="password"
         autocomplete="current-password"
         placeholder="Пароль"
+        minlength="8"
         required
       ></text-field>
       <text-field
@@ -36,6 +38,7 @@
         type="password"
         autocomplete="confirm-password"
         placeholder="Подтвердите пароль"
+        minlength="8"
         required
       ></text-field>
     </div>
