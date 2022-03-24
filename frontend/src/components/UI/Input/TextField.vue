@@ -35,7 +35,7 @@ const listClasses = reactive([
     'focus:ring-indigo-500',
     'focus:border-indigo-500',
     'focus:z-10',
-    'sm:text-sm'
+    'text-sm'
 ]);
 
 const classes = computed(() => {
