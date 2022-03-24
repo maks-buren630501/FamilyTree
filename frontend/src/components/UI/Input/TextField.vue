@@ -23,7 +23,6 @@ const value = computed({
 const listClasses = reactive([
     'appearance-none',
     'rounded-none',
-    'relative',
     'block',
     'w-full',
     'px-3',
