@@ -24,8 +24,10 @@ app_authentication = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch
 
 
 @app_authentication.post('/registration', **registration_url_config.dict())
-async def registration_user(user: UserSchemaCreate, crud: UserCrud = Depends(user_crud)) -> str:
+async def registration_user(user: UserSchemaCreate, crud: UserCrud = Depends(user_crud)) -> str | Response:
     try:
+        if len(user.password) < 8 or len(user.username) < 4:
+            return Response(status_code=status.HTTP_406_NOT_ACCEPTABLE)
         user.password = hash_password(user.password)
         new_user = await crud.create({**user.dict(), **{'active': False}})
         try:

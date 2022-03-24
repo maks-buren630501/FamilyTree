@@ -13,7 +13,8 @@ registration_url_config = AuthenticationUrlConfig(
     name='Регистрация пользователя',
     description='Регистрация пользователя в системе, необходима активация',
     responses={
-        status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value
+        status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value,
+        status.HTTP_406_NOT_ACCEPTABLE: ResponseDescription.CONFLICT.value
     },
     response_model=str,
     status_code=status.HTTP_201_CREATED

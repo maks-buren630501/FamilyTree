@@ -38,6 +38,18 @@ class AuthenticationApiTestCase(IsolatedAsyncioTestCase):
             response = await ac.post(f"/authentication/registration", data=user)
         self.assertEqual(response.status_code, 409)
 
+    async def test_register_user_with_short_password(self):
+        user = json.dumps({'username': 'andrey', 'password': '1234567', 'email': 'pushkin@mail.com'})
+        async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
+            response = await ac.post(f"/authentication/registration", data=user)
+        self.assertEqual(response.status_code, 406)
+
+    async def test_register_user_with_short_name(self):
+        user = json.dumps({'username': 'and', 'password': '12345678910', 'email': 'pushkin@mail.com'})
+        async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
+            response = await ac.post(f"/authentication/registration", data=user)
+        self.assertEqual(response.status_code, 406)
+
     async def test_login(self):
         user = json.dumps({'username': 'andrey', 'password': '1ewuvn3i2344', 'email': 'pushkin@mail.com'})
         async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
