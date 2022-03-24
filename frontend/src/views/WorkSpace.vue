@@ -1,13 +1,18 @@
 <template>
-  <div class="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-auto space-y-8">
-      <h1>WorkSpace</h1>
-      <router-view></router-view>
-    </div>
+  <div class="min-h-full">
+    <nav-bar></nav-bar>
+    <main class="h-full">
+      <div class="h-full max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+          <div class="border-4 border-dashed border-gray-200 rounded-lg"></div>
+        </div>
+      </div>
+    </main>
   </div>
 </template>
 
 <script setup>
+import NavBar from "../components/UI/NavigationBar/NavBar.vue";
 </script>
 
 <style scoped>
