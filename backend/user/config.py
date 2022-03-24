@@ -35,7 +35,8 @@ create_user_url_config = UserUrlConfig(
     name='Создать пользователя',
     description='Зарегестрировать пользователя в системе',
     responses={
-        status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value
+        status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value,
+        status.HTTP_406_NOT_ACCEPTABLE: ResponseDescription.CONFLICT.value
     },
     response_model=str,
     status_code=status.HTTP_201_CREATED
