@@ -1,10 +1,8 @@
 <template>
   <div class="relative" v-click-outside="closeDropDown">
-    <div @click="dropdown = !dropdown">
-      <slot name="activator"></slot>
-    </div>
+    <slot name="activator" :change="changeDropDown" :open="openDropDown" :close="closeDropDown"></slot>
     <transition name="dropdown">
-      <div v-show="dropdown" class="z-10 absolute top-12 w-content bg-white rounded divide-y divide-gray-100 shadow">
+      <div v-show="dropdown" class="z-10 overflow-y-auto max-h-screen-2/3 absolute top-12 bg-white min-w-full divide-y divide-gray-100 shadow">
         <slot name="body"></slot>
       </div>
     </transition>
@@ -15,6 +13,14 @@
 import {ref} from "vue";
 
 const dropdown = ref(false)
+
+function changeDropDown() {
+  dropdown.value = !dropdown.value
+}
+
+function openDropDown() {
+  dropdown.value = true
+}
 
 function closeDropDown() {
   dropdown.value = false

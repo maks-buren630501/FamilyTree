@@ -1,5 +1,5 @@
 <template>
-  <div class="text-sm italic">
+  <div class="text-xs sm:text-sm italic">
     <slot></slot>
   </div>
 </template>

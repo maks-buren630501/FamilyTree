@@ -1,5 +1,5 @@
 <template>
-  <div class="text-md font-medium">
+  <div class="text-sm sm:text-base font-medium">
     <slot></slot>
   </div>
 </template>
