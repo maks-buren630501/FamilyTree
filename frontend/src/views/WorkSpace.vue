@@ -1,5 +1,5 @@
 <template>
-  <header class="h-15 drop-shadow-md">
+  <header class="h-16 drop-shadow-md">
     <nav-bar v-model="mobileSideBar"></nav-bar>
   </header>
 
