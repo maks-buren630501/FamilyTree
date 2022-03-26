@@ -1,13 +1,13 @@
 <template>
-  <drop-down>
-    <template v-slot:activator="{ change }">
-      <button @click="change" type="button" class="flex items-center text-sm text-white" aria-expanded="false">
+  <drop-down v-model="dropdown" close-on-click>
+    <template v-slot:activator>
+      <button @click="switchDropdown" type="button" class="flex items-center text-sm text-white" aria-expanded="false">
         <span class="hidden sm:flex">Ivanov Ivan Ivanovich</span>
-        <img class="w-8 h-8 ml-3 rounded-full" src="src/assets/profile.jpg" alt="user photo">
+        <img class="w-8 h-8 ml-3 rounded-full" src="http://127.0.0.1:3000/src/assets/profile.jpg" alt="user photo">
       </button>
     </template>
     <template v-slot:body>
-      <list>
+      <list @click="closeDropdown">
         <list-item>
           <list-item-icon>
             <icon icon="mdi-message-outline"></icon>
@@ -49,6 +49,15 @@ import ListItemIcon from "../ListItems/ListItemIcon.vue";
 import ListItemContent from "../ListItems/ListItemContent.vue";
 import ListItemContentTitle from "../ListItems/ListItemContentTitle.vue";
 import ListItemContentSubtitle from "../ListItems/ListItemContentSubtitle.vue";
+import {ref} from 'vue'
+
+const dropdown = ref(false)
+function switchDropdown() {
+  dropdown.value = !dropdown.value
+}
+function closeDropdown() {
+  dropdown.value = false
+}
 </script>
 
 <style scoped>

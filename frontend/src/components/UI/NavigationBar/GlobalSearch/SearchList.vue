@@ -1,17 +1,29 @@
 <template>
-  <list class="border-b">
+  <list class="border-b relative">
     <span class="px-2 text-xs text-gray-400">
       <slot></slot>
     </span>
-    <list-item v-for="i in 2">
-      <list-item-icon class="hidden md:block">
-        <img class="w-8 h-8 ml-3 rounded-full" src="../../../../assets/profile.jpg" alt="user photo">
-      </list-item-icon>
+    <template v-if="props.items.length" >
+      <list-item v-for="item in limitedItems">
+        <list-item-icon class="hidden md:block">
+          <img class="w-8 h-8 ml-3 rounded-full" src="http://127.0.0.1:3000/src/assets/profile.jpg" alt="user photo">
+        </list-item-icon>
+        <list-item-content>
+          <list-item-content-title>{{ item.name }}</list-item-content-title>
+          <list-item-content-subtitle>{{ item.date }}</list-item-content-subtitle>
+        </list-item-content>
+      </list-item>
+      <router-link v-if="limit" :to="moreLink" class="absolute bottom-0 right-0 px-2 text-xs text-indigo-400">
+        Ещё {{ remainder }}
+      </router-link>
+    </template>
+
+    <list-item v-else>
       <list-item-content>
-        <list-item-content-title>Ivanov Ivan Ivanovich</list-item-content-title>
-        <list-item-content-subtitle>20.12.1998-25.03.2022</list-item-content-subtitle>
+        <list-item-content-title>Ничего не найдено</list-item-content-title>
       </list-item-content>
     </list-item>
+
   </list>
 </template>
 
@@ -22,6 +34,30 @@ import ListItemIcon from "../../ListItems/ListItemIcon.vue";
 import ListItemContent from "../../ListItems/ListItemContent.vue";
 import ListItemContentTitle from "../../ListItems/ListItemContentTitle.vue";
 import ListItemContentSubtitle from "../../ListItems/ListItemContentSubtitle.vue";
+import {computed} from "vue";
+
+const props = defineProps({
+  limit: {
+    type: Number,
+    default: null
+  },
+  items: {
+    type: Array
+  },
+  variant: {
+    type: String
+  }
+})
+
+const limitedItems = computed(() => {
+  if (props.limit) {
+    return props.items.slice(0, props.limit)
+  } else {
+    return props.items
+  }
+})
+const moreLink = computed(() => Object.assign({name: 'Search', params: {variant: props.variant}}))
+const remainder = computed(() => props.items.length - props.limit)
 </script>
 
 <style scoped>

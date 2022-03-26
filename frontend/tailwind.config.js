@@ -6,8 +6,7 @@ module.exports = {
   theme: {
     extend: {
       height: {
-        '15': '3.7rem',
-        'main': 'calc(100% - 3.7rem)',
+        'main': 'calc(100% - 4rem)',
       },
       maxHeight: {
         'screen-2/3': '66vh'
