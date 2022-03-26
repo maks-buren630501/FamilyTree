@@ -1,14 +1,16 @@
 import {createWebHistory, createRouter} from "vue-router";
 import authorization from "../router/authorization";
+
 const WorkSpace = () => import('../views/WorkSpace.vue');
 const Tree = () => import('../components/FamilyTree/Tree.vue');
+const GlobalSearch = () => import('../components/FamilyTree/GlobalSearch.vue');
 import store from "../store";
 
 
 const routes = [
     {
         path: '/',
-        redirect: {name: 'Login'},
+        redirect: {name: 'Tree'},
         component: WorkSpace,
         children: [
             {
@@ -17,7 +19,17 @@ const routes = [
                 component: Tree,
                 meta: {
                     isAuth: true,
-                }
+                },
+                children: [
+                    {
+                        path: '/tree/search/:variant',
+                        name: 'Search',
+                        component: GlobalSearch,
+                        meta: {
+                            isAuth: true,
+                        }
+                    }
+                ]
             }
         ]
     },
@@ -37,14 +49,14 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
     await store.dispatch('refreshToken')
-    if(store.getters.accessToken) {
-        if(to.meta.isAuth) {
+    if (store.getters.accessToken) {
+        if (to.meta.isAuth) {
             next()
         } else {
             next({name: 'Tree'})
         }
     } else {
-        if(to.meta.isAuth) {
+        if (to.meta.isAuth) {
             next({name: 'Login'})
         } else {
             next()

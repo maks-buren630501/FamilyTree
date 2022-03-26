@@ -1,5 +1,5 @@
 <template>
-  <list-item>
+  <list-item @click.stop="value = !value">
     <list-item-icon>
       <icon class="text-xs" :icon="props.icon"></icon>
     </list-item-icon>
@@ -7,7 +7,7 @@
       <list-item-content-subtitle class="text-xs text-left">{{props.name}}</list-item-content-subtitle>
     </list-item-content>
     <list-item-action>
-      <input type="checkbox">
+      <input :checked="value" type="checkbox" class="cursor-pointer">
     </list-item-action>
   </list-item>
 </template>
@@ -19,7 +19,19 @@ import ListItemIcon from "../../ListItems/ListItemIcon.vue";
 import ListItemContent from "../../ListItems/ListItemContent.vue";
 import ListItemContentSubtitle from "../../ListItems/ListItemContentSubtitle.vue";
 import ListItemAction from "../../ListItems/ListItemAction.vue";
-const props = defineProps(['name', 'icon'])
+import {computed} from "vue";
+
+const props = defineProps(['name', 'icon', 'modelValue'])
+const emit = defineEmits(['update:modelValue'])
+
+const value = computed({
+  get() {
+    return props.modelValue
+  },
+  set(value) {
+    emit('update:modelValue', value)
+  }
+})
 </script>
 
 <style scoped>
