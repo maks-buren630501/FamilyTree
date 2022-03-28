@@ -1,38 +1,11 @@
 import {createWebHistory, createRouter} from "vue-router";
 import authorization from "../router/authorization";
-
-const WorkSpace = () => import('../views/WorkSpace.vue');
-const Tree = () => import('../components/FamilyTree/Tree.vue');
-const GlobalSearch = () => import('../components/FamilyTree/GlobalSearch.vue');
+import workspace from "./workspace";
 import store from "../store";
 
 
 const routes = [
-    {
-        path: '/',
-        redirect: {name: 'Tree'},
-        component: WorkSpace,
-        children: [
-            {
-                path: '/tree',
-                name: 'Tree',
-                component: Tree,
-                meta: {
-                    isAuth: true,
-                },
-                children: [
-                    {
-                        path: '/tree/search/:variant',
-                        name: 'Search',
-                        component: GlobalSearch,
-                        meta: {
-                            isAuth: true,
-                        }
-                    }
-                ]
-            }
-        ]
-    },
+    workspace,
     authorization,
     // {
     //     path: '/:catchAll(.*)*',

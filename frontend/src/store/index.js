@@ -8,5 +8,17 @@ export default createStore({
         authorization,
         notification,
         search
+    },
+    state: {
+        mobileSideBar: false
+    },
+    getters: {
+        mobileSideBar: state => state.mobileSideBar
+    },
+    mutations: {
+        setMobileSideBar: (state, status) => state.mobileSideBar = status
+    },
+    actions: {
+        setMobileSideBar: ({commit}, status) => commit('setMobileSideBar', status)
     }
 })

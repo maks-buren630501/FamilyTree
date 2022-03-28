@@ -14,20 +14,20 @@
 
 <script setup>
 import Icon from "../Icon.vue";
-import ControlMenu from "./ControlMenu.vue";
+import ControlMenu from "./Control/ControlMenu.vue";
 import Search from "./GlobalSearch/Search.vue";
-
 import {computed} from 'vue'
+import {useStore} from "vuex";
 
-const props = defineProps(['modelValue'])
-const emit = defineEmits(['update:modelValue'])
+
+const store = useStore()
 
 const mobileSideBar = computed({
   get() {
-    return props.modelValue
+    return store.getters.mobileSideBar
   },
   set(value) {
-    emit('update:modelValue', value)
+    store.dispatch('setMobileSideBar', value)
   }
 })
 function switchMobileSidebar() {
