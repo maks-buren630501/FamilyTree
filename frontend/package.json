@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^0.26.1",
     "click-outside-vue3": "^4.0.1",
+    "v-network-graph": "^0.5.7",
     "vue": "^3.2.25",
     "vue-axios": "^3.4.1",
     "vue-router": "^4.0.13",
