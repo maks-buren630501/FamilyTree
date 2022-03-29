@@ -7,18 +7,19 @@
       <aside
           v-if="mobileSideBar"
           v-click-outside="closeMobileSideBar"
-          class="sm:hidden block absolute bg-white h-main"
+          class="sm:hidden block absolute bg-white h-main z-10"
       >
         <side-bar></side-bar>
       </aside>
     </transition>
-    <div class="h-full max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div class="px-4 py-6 sm:px-0">
-        <router-view></router-view>
-        <div class="border-4 border-dashed border-gray-200 rounded-lg">
-          <btn @click="logout">Logout</btn>
-        </div>
-      </div>
+    <div class="h-full w-full">
+      <router-view></router-view>
+      <v-network-graph
+          class="!static"
+          :nodes="nodes"
+          :edges="edges"
+          :layouts="layouts"
+      />
     </div>
   </main>
 
@@ -26,7 +27,6 @@
 
 <script setup>
 import SideBar from "../../components/UI/SideBar.vue";
-import Btn from "../UI/Button/Btn.vue";
 import {useStore} from "vuex";
 import {computed} from 'vue';
 
@@ -38,8 +38,24 @@ function closeMobileSideBar() {
   store.dispatch('setMobileSideBar', false)
 }
 
-function logout() {
-  store.dispatch('logout')
+const nodes = {
+  node1: {name: "Node 1"},
+  node2: {name: "Node 2"},
+  node3: {name: "Node 3"},
+  node4: {name: "Node 4"},
+}
+const edges = {
+  edge1: {source: "node1", target: "node2"},
+  edge2: {source: "node2", target: "node3"},
+  edge3: {source: "node3", target: "node4"},
+}
+const layouts = {
+  nodes: {
+    node1: {x: 0, y: 0},
+    node2: {x: 200, y: 200},
+    node3: {x: 400, y: 0},
+    node4: {x: 600, y: 200},
+  },
 }
 </script>
 
@@ -53,5 +69,9 @@ function logout() {
 .sidebar-leave-to {
   opacity: 0;
   transform: translateX(-35px);
+}
+
+.asdasd {
+  position: static!important;
 }
 </style>
