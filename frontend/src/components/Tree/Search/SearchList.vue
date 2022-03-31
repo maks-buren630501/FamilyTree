@@ -28,12 +28,12 @@
 </template>
 
 <script setup>
-import List from "../../ListItems/List.vue";
-import ListItem from "../../ListItems/ListItem.vue";
-import ListItemIcon from "../../ListItems/ListItemIcon.vue";
-import ListItemContent from "../../ListItems/ListItemContent.vue";
-import ListItemContentTitle from "../../ListItems/ListItemContentTitle.vue";
-import ListItemContentSubtitle from "../../ListItems/ListItemContentSubtitle.vue";
+import List from "../../UI/ListItems/List.vue";
+import ListItem from "../../UI/ListItems/ListItem.vue";
+import ListItemIcon from "../../UI/ListItems/ListItemIcon.vue";
+import ListItemContent from "../../UI/ListItems/ListItemContent.vue";
+import ListItemContentTitle from "../../UI/ListItems/ListItemContentTitle.vue";
+import ListItemContentSubtitle from "../../UI/ListItems/ListItemContentSubtitle.vue";
 import {computed} from "vue";
 
 const props = defineProps({

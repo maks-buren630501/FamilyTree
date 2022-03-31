@@ -22,11 +22,11 @@
 </template>
 
 <script setup>
-import Icon from "../UI/Icon.vue";
-import Modal from "../UI/Modal.vue";
-import TextField from "../UI/Input/TextField.vue";
-import SearchSettings from "../UI/NavigationBar/GlobalSearch/SearchSettings.vue";
-import SearchList from "../UI/NavigationBar/GlobalSearch/SearchList.vue";
+import Icon from "../../UI/Icon.vue";
+import Modal from "../../UI/Modal.vue";
+import TextField from "../../UI/Input/TextField.vue";
+import SearchSettings from "./SearchSettings.vue";
+import SearchList from "./SearchList.vue";
 import {ref, computed} from "vue";
 import {useRoute} from "vue-router";
 import {useStore} from "vuex";
