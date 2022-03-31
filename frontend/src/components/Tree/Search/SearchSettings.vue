@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import List from "../../ListItems/List.vue";
+import List from "../../UI/ListItems/List.vue";
 import SearchSettingsItem from "./SearchSettingsItem.vue";
 import {computed, reactive} from "vue";
 import {useStore} from "vuex";

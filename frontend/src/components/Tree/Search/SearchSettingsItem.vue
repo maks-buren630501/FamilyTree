@@ -13,12 +13,12 @@
 </template>
 
 <script setup>
-import Icon from "../../Icon.vue";
-import ListItem from "../../ListItems/ListItem.vue";
-import ListItemIcon from "../../ListItems/ListItemIcon.vue";
-import ListItemContent from "../../ListItems/ListItemContent.vue";
-import ListItemContentSubtitle from "../../ListItems/ListItemContentSubtitle.vue";
-import ListItemAction from "../../ListItems/ListItemAction.vue";
+import Icon from "../../UI/Icon.vue";
+import ListItem from "../../UI/ListItems/ListItem.vue";
+import ListItemIcon from "../../UI/ListItems/ListItemIcon.vue";
+import ListItemContent from "../../UI/ListItems/ListItemContent.vue";
+import ListItemContentSubtitle from "../../UI/ListItems/ListItemContentSubtitle.vue";
+import ListItemAction from "../../UI/ListItems/ListItemAction.vue";
 import {computed} from "vue";
 
 const props = defineProps(['name', 'icon', 'modelValue'])
