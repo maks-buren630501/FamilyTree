@@ -5,8 +5,8 @@ import router from "./router";
 import axios from './plugins/axios';
 import VueAxios from 'vue-axios';
 import vClickOutside from "click-outside-vue3";
-import VNetworkGraph from "v-network-graph"
-import "v-network-graph/lib/style.css"
+import VNetworkGraph from "v-network-graph";
+import "v-network-graph/lib/style.css";
 import './index.css';
 
 createApp(App)
