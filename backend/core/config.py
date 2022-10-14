@@ -3,6 +3,7 @@ import os
 from enum import Enum
 
 import yaml
+from decouple import config
 from pydantic.tools import lru_cache
 
 
@@ -40,4 +41,4 @@ def load_config(path: str) -> dict:
             return yaml.safe_load(outfile)
 
 
-project_config = load_config(os.environ['config_path'])
+project_config = load_config(config('CONFIG_PATH'))

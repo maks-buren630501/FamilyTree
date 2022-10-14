@@ -4,15 +4,15 @@ from fastapi import FastAPI, Response, status, Depends
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from backend.user.config import get_users_url_config, get_user_url_config, create_user_url_config, \
+from user.config import get_users_url_config, get_user_url_config, create_user_url_config, \
     update_user_url_config, delete_user_url_config
-from backend.user.crud import UserCrud
-from backend.user.dependence import user_crud
-from backend.user.schemas import UserSchemaGet, UserSchemaCreate, UpdateUserSchema
-from backend.authentication.functions import hash_password
-from backend.core.exception.base_exeption import UniqueIndexException
-from backend.core.exception.http_exeption import NotUniqueIndex
-from backend.core.middleware import error_handler_middleware
+from user.crud import UserCrud
+from user.dependence import user_crud
+from user.schemas import UserSchemaGet, UserSchemaCreate, UpdateUserSchema
+from authentication.functions import hash_password
+from core.exception.base_exeption import UniqueIndexException
+from core.exception.http_exeption import NotUniqueIndex
+from core.middleware import error_handler_middleware
 
 app_user = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_handler_middleware)])
 

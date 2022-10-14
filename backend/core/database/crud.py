@@ -2,8 +2,8 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from pymongo.errors import DuplicateKeyError
 
-from backend.core.database.driver import get_database
-from backend.core.exception.base_exeption import UniqueIndexException
+from core.database.driver import get_database
+from core.exception.base_exeption import UniqueIndexException
 
 
 class BaseCrud:

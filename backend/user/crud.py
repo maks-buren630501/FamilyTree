@@ -1,4 +1,4 @@
-from backend.core.database.crud import BaseCrud
+from core.database.crud import BaseCrud
 
 
 class UserCrud(BaseCrud):

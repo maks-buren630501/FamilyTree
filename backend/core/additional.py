@@ -4,7 +4,7 @@ from typing import Callable, Optional
 from jose import jwt
 from pydantic import BaseSettings
 
-from backend.core.config import project_config
+from core.config import project_config
 
 
 def singleton(class_):

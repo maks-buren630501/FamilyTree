@@ -1,8 +1,8 @@
 from unittest import IsolatedAsyncioTestCase
 
-from backend.authentication.crud import RefreshTokenCrud
-from backend.authentication.functions import create_refresh_token
-from backend.core.database.driver import init_database_client, get_database
+from authentication.crud import RefreshTokenCrud
+from authentication.functions import create_refresh_token
+from core.database.driver import init_database_client, get_database
 
 
 class AuthenticationCrudTestCase(IsolatedAsyncioTestCase):

@@ -4,21 +4,21 @@ from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
-from backend.authentication.config import registration_url_config, activate_url_config, \
+from authentication.config import registration_url_config, activate_url_config, \
     login_url_config, logout_url_config, refresh_url_config
-from backend.authentication.crud import RefreshTokenCrud
-from backend.user.crud import UserCrud
-from backend.user.dependence import user_crud
-from backend.authentication.dependence import refresh_token_crud
-from backend.authentication.schemas import LoginUserSchema, UpdatePasswordSchema, RecoveryPasswordSchema
-from backend.authentication.functions import hash_password, create_registration_token, create_login_token, \
+from authentication.crud import RefreshTokenCrud
+from user.crud import UserCrud
+from user.dependence import user_crud
+from authentication.dependence import refresh_token_crud
+from authentication.schemas import LoginUserSchema, UpdatePasswordSchema, RecoveryPasswordSchema
+from authentication.functions import hash_password, create_registration_token, create_login_token, \
     new_refresh_token, get_refresh_cookies_age, update_refresh_token, create_password_recovery_token
-from backend.core.additional import decode_token
-from backend.core.email.driver import mail
-from backend.core.exception.base_exeption import UniqueIndexException
-from backend.core.exception.http_exeption import NotUniqueIndex, TokenError
-from backend.core.middleware import error_handler_middleware
-from backend.user.schemas import UserSchemaCreate
+from core.additional import decode_token
+from core.email.driver import mail
+from core.exception.base_exeption import UniqueIndexException
+from core.exception.http_exeption import NotUniqueIndex, TokenError
+from core.middleware import error_handler_middleware
+from user.schemas import UserSchemaCreate
 
 app_authentication = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_handler_middleware)])
 

@@ -3,9 +3,9 @@ from unittest import IsolatedAsyncioTestCase
 
 from httpx import AsyncClient
 
-from backend.user.crud import UserCrud
-from backend.core.database.driver import init_database_client, get_database
-from backend.main import app
+from user.crud import UserCrud
+from core.database.driver import init_database_client, get_database
+from main import app
 
 
 class UserApiTestCase(IsolatedAsyncioTestCase):

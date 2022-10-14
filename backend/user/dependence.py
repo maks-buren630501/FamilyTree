@@ -1,4 +1,4 @@
-from backend.user.crud import UserCrud
+from user.crud import UserCrud
 
 
 def user_crud():

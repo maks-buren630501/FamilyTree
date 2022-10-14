@@ -1,7 +1,7 @@
 from fastapi import status
 
-from backend.core.additional import BaseUrlConfig
-from backend.core.config import ResponseDescription
+from core.additional import BaseUrlConfig
+from core.config import ResponseDescription
 
 
 class AuthenticationUrlConfig(BaseUrlConfig):

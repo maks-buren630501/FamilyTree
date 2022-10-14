@@ -3,10 +3,10 @@ import hashlib
 
 from datetime import timedelta
 
-from backend.authentication.crud import RefreshTokenCrud
-from backend.authentication.schemas import BaseRefreshTokenSchema
-from backend.core.additional import create_token
-from backend.core.config import project_config
+from authentication.crud import RefreshTokenCrud
+from authentication.schemas import BaseRefreshTokenSchema
+from core.additional import create_token
+from core.config import project_config
 
 
 def hash_password(password) -> bytes:
