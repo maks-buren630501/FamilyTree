@@ -3,10 +3,9 @@ from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
-from core.database.driver import init_database_client
 from authentication.urls import app_authentication
 from core.middleware import authentication_middleware, log_middleware
-from tree.urls import app_tree
+# from tree.urls import app_tree
 from user.urls import app_user
 
 origins = [
@@ -21,9 +20,9 @@ app = FastAPI(middleware=[
 
 app.mount('/authentication', app_authentication)
 app.mount('/user', app_user)
-app.mount('/tree', app_tree)
+# app.mount('/tree', app_tree)
 
 
-@app.on_event("startup")
-async def startup_event():
-    init_database_client()
+# @app.on_event("startup")
+# async def startup_event():
+#     init_database_client()

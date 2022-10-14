@@ -31,5 +31,7 @@ class Mail:
     def __del__(self):
         self.server.close()
 
-
-mail = Mail(mail_auth.mail_user, mail_auth.password)
+try:
+    mail = Mail(mail_auth.mail_user, mail_auth.password)
+except:
+    mail = 'Mail'

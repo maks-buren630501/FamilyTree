@@ -3,8 +3,6 @@ from unittest import IsolatedAsyncioTestCase
 
 from httpx import AsyncClient
 
-from user.crud import UserCrud
-from core.database.driver import init_database_client, get_database
 from main import app
 
 

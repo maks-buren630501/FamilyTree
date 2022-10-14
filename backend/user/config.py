@@ -3,7 +3,7 @@ from typing import List
 from fastapi import status
 
 from core.config import ResponseDescription
-from user.schemas import UserSchemaGet
+from user.models import UserSchemaGet
 from core.additional import BaseUrlConfig
 
 

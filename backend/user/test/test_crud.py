@@ -1,6 +1,3 @@
-from user.crud import UserCrud
-from core.database.driver import init_database_client, get_database
-
 from unittest import IsolatedAsyncioTestCase
 
 from core.exception.base_exeption import UniqueIndexException
