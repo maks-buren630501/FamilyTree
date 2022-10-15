@@ -3,7 +3,7 @@ import uuid
 
 from starlette.datastructures import URL
 
-from backend.core.config import project_config
+from core.config import project_config
 
 
 def get_request_logger():

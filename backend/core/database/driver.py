@@ -1,33 +1,18 @@
-from backend.core.config import project_config
-from backend.core.database.config import mongo_url
-import motor.motor_asyncio
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.orm import sessionmaker
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from core.database.config import database_url
 
 
-class DatabaseClient:
-
-    def __init__(self, name: str):
-        self.__client = motor.motor_asyncio.AsyncIOMotorClient(mongo_url)
-        self.__database = self.__client.get_database(name)
-
-    @property
-    def database(self):
-        return self.__database
-
-    @property
-    def client(self):
-        return self.__client
+engine = create_async_engine(database_url, echo=True, future=True)
 
 
-database_client = None
-
-
-def init_database_client():
-    global database_client
-    database_client = DatabaseClient(project_config['database']['database_name'])
-
-
-def get_database():
-    global database_client
-    return database_client
+async def get_session() -> AsyncSession:
+    async_session = sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
+    async with async_session() as session:
+        return session
 
 

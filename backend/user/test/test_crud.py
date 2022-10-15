@@ -1,9 +1,6 @@
-from backend.user.crud import UserCrud
-from backend.core.database.driver import init_database_client, get_database
-
 from unittest import IsolatedAsyncioTestCase
 
-from backend.core.exception.base_exeption import UniqueIndexException
+from core.exception.base_exeption import UniqueIndexException
 
 
 class UserCrudTestCase(IsolatedAsyncioTestCase):

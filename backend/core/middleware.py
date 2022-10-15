@@ -6,8 +6,8 @@ from starlette import status
 from starlette.requests import Request
 from starlette.responses import Response
 
-from backend.core.additional import decode_token
-from backend.core.logger import log_request, log_error
+from core.additional import decode_token
+from core.logger import log_request, log_error
 
 
 async def error_handler_middleware(request: Request, call_next) -> Response:

@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from jose import JWTError
 
-from backend.core.exception.base_exeption import UniqueIndexException
+from core.exception.base_exeption import UniqueIndexException
 
 
 def create_message(loc: list, msg: str, type_exc: str) -> str:

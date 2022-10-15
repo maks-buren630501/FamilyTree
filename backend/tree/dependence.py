@@ -1,4 +1,4 @@
-from backend.tree.crud import NodeCrud
+from tree.crud import NodeCrud
 
 
 def node_crud():

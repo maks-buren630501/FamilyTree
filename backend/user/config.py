@@ -2,9 +2,9 @@ from typing import List
 
 from fastapi import status
 
-from backend.core.config import ResponseDescription
-from backend.user.schemas import UserSchemaGet
-from backend.core.additional import BaseUrlConfig
+from core.config import ResponseDescription
+from user.models import UserSchemaGet
+from core.additional import BaseUrlConfig
 
 
 class UserUrlConfig(BaseUrlConfig):

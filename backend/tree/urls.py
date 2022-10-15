@@ -5,14 +5,14 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-from backend.core.exception.base_exeption import UniqueIndexException
-from backend.core.exception.http_exeption import NotUniqueIndex
-from backend.core.middleware import error_handler_middleware
-from backend.tree.config import get_node_url_config, create_node_url_config, update_node_url_config, \
+from core.exception.base_exeption import UniqueIndexException
+from core.exception.http_exeption import NotUniqueIndex
+from core.middleware import error_handler_middleware
+from tree.config import get_node_url_config, create_node_url_config, update_node_url_config, \
     delete_node_url_config
-from backend.tree.crud import NodeCrud
-from backend.tree.dependence import node_crud
-from backend.tree.schemas import NodeSchemaGet, BaseNodeSchema, UpdateNodeSchema
+from tree.crud import NodeCrud
+from tree.dependence import node_crud
+from tree.schemas import NodeSchemaGet, BaseNodeSchema, UpdateNodeSchema
 
 app_tree = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_handler_middleware)])
 

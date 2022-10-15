@@ -1,6 +1,6 @@
 from pydantic import BaseSettings
 
-from backend.core.config import project_config
+from core.config import project_config
 
 
 class MailAuth(BaseSettings):

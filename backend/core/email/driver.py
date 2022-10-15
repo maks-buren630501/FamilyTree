@@ -2,8 +2,8 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from backend.core.additional import singleton
-from backend.core.email.config import mail_auth
+from core.additional import singleton
+from core.email.config import mail_auth
 
 
 @singleton
@@ -31,5 +31,7 @@ class Mail:
     def __del__(self):
         self.server.close()
 
-
-mail = Mail(mail_auth.mail_user, mail_auth.password)
+try:
+    mail = Mail(mail_auth.mail_user, mail_auth.password)
+except:
+    mail = 'Mail'

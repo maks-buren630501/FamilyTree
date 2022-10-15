@@ -1,8 +1,8 @@
 from starlette import status
 
-from backend.core.additional import BaseUrlConfig
-from backend.core.config import ResponseDescription
-from backend.tree.schemas import NodeSchemaGet
+from core.additional import BaseUrlConfig
+from core.config import ResponseDescription
+from tree.schemas import NodeSchemaGet
 
 
 class NodeUrlConfig(BaseUrlConfig):

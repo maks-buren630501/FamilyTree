@@ -3,10 +3,10 @@ from unittest import IsolatedAsyncioTestCase
 
 from httpx import AsyncClient
 
-from backend.tree.crud import NodeCrud
-from backend.core.database.driver import init_database_client, get_database
-from backend.main import app
-from backend.user.crud import UserCrud
+from tree.crud import NodeCrud
+from core.database.driver import init_database_client, get_database
+from main import app
+from user.crud import UserCrud
 
 
 class NodeApiTestCase(IsolatedAsyncioTestCase):
