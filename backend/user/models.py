@@ -6,20 +6,19 @@ from core.database.models import BaseModel
 
 class BaseUserSchema(SQLModel):
     username: str
-    email: EmailStr
+    email: EmailStr = Field(unique=True)
 
 
-class UserSchemaGet(BaseUserSchema):
-    id: str
+class UserSchemaGet(BaseModel, BaseUserSchema):
+    active: bool = Field(default=False)
 
 
 class UserSchemaCreate(BaseUserSchema):
     password: str
 
 
-class UserDataBase(BaseModel, BaseUserSchema, table=True):
+class UserDataBase(UserSchemaGet, table=True):
     password: bytes
-    active: bool = Field(default=False)
 
 
 class UpdateUserSchema(BaseModel):

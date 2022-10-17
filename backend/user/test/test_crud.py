@@ -1,73 +1,67 @@
 from unittest import IsolatedAsyncioTestCase
 
-from core.exception.base_exeption import UniqueIndexException
+from sqlalchemy.exc import IntegrityError, ProgrammingError
+from sqlmodel import select
+
+from core.database.crud import Crud
+from core.database.driver import init_db
+from core.database.migrations import clear_tables
+from user.models import UserDataBase
 
 
 class UserCrudTestCase(IsolatedAsyncioTestCase):
 
-    async def asyncSetUp(self):
-        init_database_client()
-        self.connection = get_database()
-        self.crud = UserCrud()
+    async def asyncSetUp(self) -> None:
+        init_db()
 
     async def asyncTearDown(self):
-        await self.connection.database.get_collection("users").delete_many({})
-        self.connection.client.close()
+        await clear_tables()
 
     async def test_get_user_by_id(self):
-        user = await self.crud.create({'username': 'pushkin', 'email': 'pushkin@mail.com', 'password': b'veverbi344'})
-        user_data = await self.crud.get(user)
-        self.assertEqual(user_data['username'], 'pushkin')
-        self.assertEqual(user_data['email'], 'pushkin@mail.com')
-        self.assertEqual(user_data['password'], b'veverbi344')
+        user = await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
+        user_data: UserDataBase = await Crud.get(select(UserDataBase).where(UserDataBase.id == user))
+        self.assertEqual(user_data.username, 'pushkin')
+        self.assertEqual(user_data.email, 'pushkin@mail.com')
+        self.assertEqual(user_data.password, b'veverbi344')
 
-    async def test_get_user_by_wroregistrationng_id(self):
-        user_data = await self.crud.get('2437328459ettb')
+    async def test_not_exist_user(self):
+        user_data = await Crud.get(select(UserDataBase).where(UserDataBase.id == 10))
         self.assertIsNone(user_data)
 
-    async def test_get_not_exist_user(self):
-        user_data = await self.crud.get('622db5ecf978a3e718b61933')
+    async def test_user_by_wrong_id(self):
+        user_data = await Crud.get(select(UserDataBase).where(UserDataBase.id == '10'))
         self.assertIsNone(user_data)
 
     async def test_create_with_same_email(self):
-        await self.crud.create({'username': 'pushkin', 'email': 'pushkin@mail.com', 'password': b'veverbi344'})
-        with self.assertRaises(UniqueIndexException) as e:
-            await self.crud.create({'username': 'evgestrogan', 'email': 'pushkin@mail.com', 'password': b'ybuhvdfjv34r2'})
-            self.assertIsInstance(e, UniqueIndexException)
+        await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
+        with self.assertRaises(IntegrityError) as e:
+            await Crud.save(UserDataBase(username='zero', password=b'343g3ewqe23', email='pushkin@mail.com'))
+            self.assertIsInstance(e, IntegrityError)
 
     async def test_get_all_users(self):
-        await self.crud.create({'username': 'pushkin', 'email': 'pushkin@mail.com', 'password': b'veverbi344'})
-        await self.crud.create({'username': 'evgestrogan', 'email': 'evgestrogan@mail.com', 'password': b'btrbt345'})
-        await self.crud.create({'username': 'nikolay', 'email': 'nikolay@mail.com', 'password': b'grbwvr4315btr'})
-        users = await self.crud.get_all()
+        await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
+        await Crud.save(UserDataBase(username='evgestrogan', password=b'btrbt345', email='evgestrogan@mail.com'))
+        await Crud.save(UserDataBase(username='nikolay', password=b'grbwvr4315btr', email='nikolay@mail.com'))
+        users = await Crud.get_all(select(UserDataBase))
         self.assertIsInstance(users, list)
         self.assertEqual(3, len(users))
 
     async def test_remove_user(self):
-        await self.crud.create({'username': 'pushkin', 'email': 'pushkin@mail.com', 'password': b'veverbi344'})
-        user = await self.crud.create({'username': 'evgestrogan', 'email': 'evgestrogan@mail.com', 'password': b'btrbt345'})
-        result = await self.crud.delete(user)
-        users = await self.crud.get_all()
+        await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
+        user = await Crud.save(UserDataBase(username='evgestrogan', password=b'btrbt345', email='evgestrogan@mail.com'))
+        await Crud.delete(await Crud.get(select(UserDataBase).where(UserDataBase.id == user)))
+        users = await Crud.get_all(select(UserDataBase))
         self.assertEqual(1, len(users))
-        self.assertEqual(result, 1)
-
-    async def test_remove_user_with_wrong_id(self):
-        result = await self.crud.delete('2437328459ettbfe')
-        self.assertIsNone(result)
-
-    async def test_remove_not_exist_user(self):
-        result = await self.crud.delete('622db5ecf978a3e718b61934')
-        self.assertIsNone(result)
 
     async def test_find_user(self):
-        await self.crud.create({'username': 'pushkin', 'email': 'pushkin@mail.com', 'password': b'veverbi344'})
-        await self.crud.create({'username': 'anton', 'email': 'anton@mail.com', 'password': b'rb43q4gbtrb3'})
-        find_user = await self.crud.find({'username': 'anton'})
-        self.assertEqual('anton@mail.com', find_user['email'])
+        await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
+        await Crud.save(UserDataBase(username='anton', password=b'rb43q4gbtrb3', email='anton@mail.com'))
+        find_user: UserDataBase = await Crud.get(select(UserDataBase).where(UserDataBase.username == 'anton'))
+        self.assertEqual('anton@mail.com', find_user.email)
 
     async def test_find_not_exist_user(self):
-        await self.crud.create({'username': 'pushkin', 'email': 'pushkin@mail.com', 'password': b'veverbi344'})
-        find_user = await self.crud.find({'username': 'anton'})
+        await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
+        find_user: UserDataBase = await Crud.get(select(UserDataBase).where(UserDataBase.username == 'anton'))
         self.assertIsNone(find_user)
 
 
