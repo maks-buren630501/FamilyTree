@@ -1,3 +1,4 @@
+import uuid
 from typing import List
 
 from fastapi import status
@@ -38,7 +39,7 @@ create_user_url_config = UserUrlConfig(
         status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value,
         status.HTTP_406_NOT_ACCEPTABLE: ResponseDescription.CONFLICT.value
     },
-    response_model=str,
+    response_model=uuid.UUID,
     status_code=status.HTTP_201_CREATED
 )
 
@@ -50,7 +51,7 @@ update_user_url_config = UserUrlConfig(
         status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value,
         status.HTTP_204_NO_CONTENT: ResponseDescription.NO_CONTENT.value
     },
-    response_model=str,
+    response_model=uuid.UUID,
     status_code=status.HTTP_201_CREATED
 )
 

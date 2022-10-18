@@ -1,7 +1,10 @@
 import datetime
+import uuid
 
 from pydantic import EmailStr
+from sqlalchemy import Column, ForeignKey
 from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel.sql.sqltypes import GUID
 
 from core.database.models import BaseModel
 from user.models import UserDataBase
@@ -21,6 +24,6 @@ class LoginUserSchema(SQLModel):
 
 
 class BaseRefreshToken(BaseModel, table=True):
-    user_id: int = Field(foreign_key=UserDataBase.id)
+    user_id: uuid.UUID = Field(sa_column=Column(GUID, ForeignKey(UserDataBase.id, ondelete="CASCADE")))
     user: UserDataBase = Relationship(back_populates="refresh_tokens")
     time_out: datetime.datetime

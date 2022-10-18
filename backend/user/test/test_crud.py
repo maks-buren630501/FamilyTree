@@ -25,7 +25,7 @@ class UserCrudTestCase(IsolatedAsyncioTestCase):
         self.assertEqual(user_data.password, b'veverbi344')
 
     async def test_not_exist_user(self):
-        user_data = await Crud.get(select(UserDataBase).where(UserDataBase.id == 10))
+        user_data = await Crud.get(select(UserDataBase).where(UserDataBase.id == '119104c1-ae00-43d4-9d43-f2a06d497e29'))
         self.assertIsNone(user_data)
 
     async def test_user_by_wrong_id(self):

@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import FastAPI, Response, status
 from jose import JWTError
 from sqlalchemy.exc import IntegrityError
@@ -23,7 +25,7 @@ app_authentication = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch
 
 
 @app_authentication.post('/registration', **registration_url_config.dict())
-async def registration_user(user: UserSchemaCreate) -> int | Response:
+async def registration_user(user: UserSchemaCreate) -> uuid.UUID | Response:
     try:
         if len(user.password) < 8 or len(user.username) < 4:
             return Response(status_code=status.HTTP_406_NOT_ACCEPTABLE)
@@ -83,7 +85,7 @@ async def login(user: LoginUserSchema, response: Response) -> Response | dict:
 async def refresh(request: Request, response: Response) -> Response | dict:
     refresh_token = request.cookies.get('refresh_token')
     if refresh_token:
-        new_access_token = await update_refresh_token(int(refresh_token))
+        new_access_token = await update_refresh_token(refresh_token)
         if new_access_token:
             return {'access_token': new_access_token, 'time_out': decode_token(new_access_token)['exp']}
         else:
@@ -100,7 +102,7 @@ async def logout(request: Request, response: Response) -> Response | None:
         return Response(status_code=status.HTTP_403_FORBIDDEN)
     else:
         if request.cookies.get('refresh_token'):
-            refresh_token_id = int(request.cookies['refresh_token'])
+            refresh_token_id = request.cookies['refresh_token']
             refresh_token = await Crud.get(select(BaseRefreshToken).
                                            where(BaseRefreshToken.id == refresh_token_id))
             if refresh_token:

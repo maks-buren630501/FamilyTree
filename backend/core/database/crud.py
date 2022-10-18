@@ -1,4 +1,6 @@
-from sqlalchemy.exc import ProgrammingError
+import uuid
+
+from sqlalchemy.exc import ProgrammingError, StatementError
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel.sql.expression import Select, SelectOfScalar
 
@@ -9,26 +11,29 @@ from core.database.models import BaseModel
 class Crud:
 
     @staticmethod
-    async def get(select: Select | SelectOfScalar):
+    async def base_get(select: Select | SelectOfScalar):
         session: AsyncSession = await get_session()
         try:
             result = await session.exec(select)
-        except ProgrammingError:
+        except (ProgrammingError, StatementError):
             return None
         else:
-            return result.first()
+            return result
         finally:
             await session.close()
 
     @staticmethod
-    async def get_all(select: Select | SelectOfScalar) -> list:
-        session: AsyncSession = await get_session()
-        result = await session.exec(select)
-        await session.close()
-        return result.all()
+    async def get(select: Select | SelectOfScalar):
+        result = await Crud.base_get(select)
+        return result.first() if result is not None else None
 
     @staticmethod
-    async def save(database_object: BaseModel) -> int:
+    async def get_all(select: Select | SelectOfScalar) -> list:
+        result = await Crud.base_get(select)
+        return result.all() if result is not None else []
+
+    @staticmethod
+    async def save(database_object: BaseModel) -> uuid.UUID:
         session: AsyncSession = await get_session()
         session.add(database_object)
         await session.commit()
