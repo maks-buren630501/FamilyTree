@@ -2,9 +2,9 @@ import asyncio
 
 from sqlmodel import SQLModel
 
-from core.database.driver import get_engine
-from authentication import models
+from core.database.driver import get_engine, init_db
 from user import models
+from authentication import models
 
 
 async def create_db_and_tables() -> None:
@@ -24,6 +24,7 @@ async def clear_tables() -> None:
 
 
 if __name__ == "__main__":
+    init_db()
     loop = asyncio.get_event_loop()
     coroutine = create_db_and_tables()
     loop.run_until_complete(coroutine)

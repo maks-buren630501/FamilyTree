@@ -1,6 +1,4 @@
 import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
 from core.additional import singleton
 from core.email.config import mail_auth
@@ -20,13 +18,14 @@ class Mail:
             exit()
 
     def send_message(self, to: str, subject: str, text: str):
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = subject
-        msg['From'] = self.user
-        msg['To'] = to
-        part2 = MIMEText(text, 'html')
-        msg.attach(part2)
-        self.server.sendmail(self.user, to, msg.as_string())
+        msg = f"""
+            From: From Person <{self.user}>
+            To: To Person <{to}>
+            Subject: {subject}
+        
+            {text}
+        """
+        self.server.sendmail(self.user, to, msg)
 
     def __del__(self):
         self.server.close()

@@ -8,7 +8,7 @@ from starlette.requests import Request
 
 from authentication.config import registration_url_config, activate_url_config, \
     login_url_config, logout_url_config, refresh_url_config
-from authentication.models import LoginUserSchema, UpdatePasswordSchema, RecoveryPasswordSchema, BaseRefreshTokenSchema
+from authentication.models import LoginUserSchema, UpdatePasswordSchema, RecoveryPasswordSchema, BaseRefreshToken
 from authentication.functions import hash_password, create_registration_token, create_login_token, \
     new_refresh_token, get_refresh_cookies_age, update_refresh_token, create_password_recovery_token
 from core.additional import decode_token
@@ -38,7 +38,7 @@ async def registration_user(user: UserSchemaCreate) -> int | Response:
             mail.send_message(
                 user.email,
                 'Activate account FamilyTree',
-                f"Для активации аккаунта <a href=\"{recovery_link}{registration_token}\">перейдите по ссылке</a>"
+                f"For account activating click the link <a href=\"{recovery_link}{registration_token}\">link</a>"
             )
             return new_user_id
         except Exception as e:
@@ -101,8 +101,8 @@ async def logout(request: Request, response: Response) -> Response | None:
     else:
         if request.cookies.get('refresh_token'):
             refresh_token_id = int(request.cookies['refresh_token'])
-            refresh_token = await Crud.get(select(BaseRefreshTokenSchema).
-                                           where(BaseRefreshTokenSchema.id == refresh_token_id))
+            refresh_token = await Crud.get(select(BaseRefreshToken).
+                                           where(BaseRefreshToken.id == refresh_token_id))
             if refresh_token:
                 await Crud.delete(refresh_token)
             response.delete_cookie(key='refresh_token', httponly=True, path='/')
@@ -119,7 +119,7 @@ async def start_recovery_password(data: RecoveryPasswordSchema) -> Response:
         mail.send_message(
             data.email,
             'Recovery password',
-            f"Для изменения пароля <a href=\"{recovery_link}{password_recovery_token}\">перейдите по ссылке</a>"
+            f"For change the password click the link <a href=\"{recovery_link}{password_recovery_token}\">link</a>"
         )
         return Response(status_code=status.HTTP_200_OK)
     else:
