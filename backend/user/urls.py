@@ -1,3 +1,4 @@
+import uuid
 from typing import List
 
 from fastapi import FastAPI, Response, status
@@ -17,7 +18,7 @@ app_user = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_han
 
 
 @app_user.get('/{user_id}', **get_user_url_config.dict())
-async def get_user(user_id: int) -> UserSchemaGet | Response:
+async def get_user(user_id: str) -> UserSchemaGet | Response:
     user = await Crud.get(select(UserDataBase).where(UserDataBase.id == user_id))
     if user:
         return user
@@ -32,7 +33,7 @@ async def get_users() -> List[UserSchemaGet]:
 
 
 @app_user.post('/', **create_user_url_config.dict())
-async def create_user(user: UserSchemaCreate) -> int | Response:
+async def create_user(user: UserSchemaCreate) -> uuid.UUID | Response:
     if len(user.password) < 8 or len(user.username) < 4:
         return Response(status_code=status.HTTP_406_NOT_ACCEPTABLE)
     password = hash_password(user.password)
@@ -44,7 +45,7 @@ async def create_user(user: UserSchemaCreate) -> int | Response:
 
 
 @app_user.put('/{user_id}', **update_user_url_config.dict())
-async def update_user(user_id: int, user: UpdateUserSchema) -> int | Response:
+async def update_user(user_id: str, user: UpdateUserSchema) -> uuid.UUID | Response:
     database_user: UserDataBase = await Crud.get(select(UserDataBase).where(UserDataBase.id == user_id))
     if database_user:
         database_user.email = user.email if user.email else database_user.email
@@ -59,7 +60,7 @@ async def update_user(user_id: int, user: UpdateUserSchema) -> int | Response:
 
 
 @app_user.delete('/{user_id}', **delete_user_url_config.dict())
-async def delete_user(user_id: int) -> Response:
+async def delete_user(user_id: str) -> Response:
     database_user: UserDataBase = await Crud.get(select(UserDataBase).where(UserDataBase.id == user_id))
     if database_user:
         await Crud.delete(database_user)

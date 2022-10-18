@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import status
 
 from core.additional import BaseUrlConfig
@@ -16,7 +18,7 @@ registration_url_config = AuthenticationUrlConfig(
         status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value,
         status.HTTP_406_NOT_ACCEPTABLE: ResponseDescription.CONFLICT.value
     },
-    response_model=str,
+    response_model=uuid.UUID,
     status_code=status.HTTP_201_CREATED
 )
 

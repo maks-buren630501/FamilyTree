@@ -30,20 +30,20 @@ class UserApiTestCase(IsolatedAsyncioTestCase):
 
     async def test_get_not_exist_user(self):
         async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
-            response = await ac.get(f"/user/10")
+            response = await ac.get(f"/user/119104c1-ae00-43d4-9d43-f2a06d497e29")
         self.assertEqual(response.status_code, 204)
 
     async def test_get_user_by_wrong_id(self):
         async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
             response = await ac.get(f"/user/10e234vredv32")
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 204)
 
     async def test_create_user(self):
         user = {'username': 'andrey', 'password': '1ewuvn3i2344', 'email': 'andrey@mail.com'}
         async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
             response = await ac.post(f"/user/", json=user)
         self.assertEqual(response.status_code, 201)
-        user_id = int(response.content.decode("utf-8").replace('\"', ''))
+        user_id = response.content.decode("utf-8").replace('\"', '')
         database_user: UserDataBase = await Crud.get(select(UserDataBase).where(UserDataBase.id == user_id))
         self.assertEqual(database_user.username, 'andrey')
 
@@ -91,8 +91,8 @@ class UserApiTestCase(IsolatedAsyncioTestCase):
         async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
             response = await ac.put(f"/user/{user_id}", json=data)
         self.assertEqual(response.status_code, 201)
-        update_count = int(response.content.decode("utf-8").replace('\"',''))
-        self.assertEqual(update_count, user_id)
+        update_user_id = response.content.decode("utf-8").replace('\"','')
+        self.assertEqual(update_user_id, str(user_id))
         database_user: UserDataBase = await Crud.get(select(UserDataBase).where(UserDataBase.id == user_id))
         self.assertEqual(database_user.username, 'andrey')
 
@@ -126,7 +126,7 @@ class UserApiTestCase(IsolatedAsyncioTestCase):
     async def test_delete_user_with_wrong_id(self):
         async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
             response = await ac.delete(f"/user/123fbdsb324")
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 204)
 
 
 

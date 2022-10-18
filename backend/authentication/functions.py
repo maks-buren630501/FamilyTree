@@ -1,5 +1,6 @@
 import datetime
 import hashlib
+import uuid
 
 from datetime import timedelta
 
@@ -21,19 +22,19 @@ def hash_password(password) -> bytes:
     )
 
 
-def create_registration_token(user_id: int) -> str:
-    return create_token({'user_id': user_id}, timedelta(days=15))
+def create_registration_token(user_id: uuid.UUID) -> str:
+    return create_token({'user_id': str(user_id)}, timedelta(days=15))
 
 
-def create_password_recovery_token(user_id: int) -> str:
-    return create_token({'user_id': user_id, 'recovery': True}, timedelta(minutes=15))
+def create_password_recovery_token(user_id: uuid.UUID) -> str:
+    return create_token({'user_id': str(user_id), 'recovery': True}, timedelta(minutes=15))
 
 
-def create_login_token(user_id: int) -> str:
-    return create_token({'user_id': user_id}, timedelta(minutes=10))
+def create_login_token(user_id: uuid.UUID) -> str:
+    return create_token({'user_id': str(user_id)}, timedelta(minutes=10))
 
 
-def create_refresh_token(user_id: int) -> BaseRefreshToken:
+def create_refresh_token(user_id: uuid.UUID) -> BaseRefreshToken:
     return BaseRefreshToken(user_id=user_id, time_out=datetime.datetime.utcnow() + timedelta(days=90))
 
 
@@ -41,7 +42,7 @@ def get_refresh_cookies_age(days: int) -> int:
     return days * 24 * 60 * 60
 
 
-async def update_refresh_token(refresh_token: int) -> str | None:
+async def update_refresh_token(refresh_token: str) -> str | None:
     database_refresh_token: BaseRefreshToken = \
         await Crud.get(select(BaseRefreshToken).where(BaseRefreshToken.id == refresh_token))
     if database_refresh_token and database_refresh_token.time_out > datetime.datetime.utcnow():
@@ -52,7 +53,7 @@ async def update_refresh_token(refresh_token: int) -> str | None:
         return None
 
 
-async def new_refresh_token(user_id: int) -> int:
+async def new_refresh_token(user_id: uuid.UUID) -> uuid.UUID:
     tokens = await Crud.get_all(select(BaseRefreshToken).where(BaseRefreshToken.user_id == user_id))
     if len(tokens) > 2:
         await Crud.delete(sorted(tokens, key=lambda x: x.time_out)[0])

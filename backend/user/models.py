@@ -24,7 +24,7 @@ class UserDataBase(UserSchemaGet, table=True):
     refresh_tokens: List['BaseRefreshToken'] = Relationship(back_populates="user")
 
 
-class UpdateUserSchema(BaseModel):
+class UpdateUserSchema(SQLModel):
     username: str | None
     email: EmailStr | None
     password: str | None
