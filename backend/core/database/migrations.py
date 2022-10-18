@@ -1,10 +1,8 @@
-import asyncio
+import os
 
 from sqlmodel import SQLModel
 
-from core.database.driver import get_engine, init_db
-from user import models
-from authentication import models
+from core.database.driver import get_engine
 
 
 async def create_db_and_tables() -> None:
@@ -23,8 +21,13 @@ async def clear_tables() -> None:
             await conn.execute(table.delete())
 
 
-if __name__ == "__main__":
-    init_db()
-    loop = asyncio.get_event_loop()
-    coroutine = create_db_and_tables()
-    loop.run_until_complete(coroutine)
+def make_migrations():
+    os.mkdir('migrations/versions')
+    os.system(f'alembic revision --autogenerate -m "init"')
+
+
+def migrate():
+    os.system(f'alembic upgrade head')
+
+
+
