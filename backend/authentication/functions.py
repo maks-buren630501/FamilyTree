@@ -5,7 +5,7 @@ from datetime import timedelta
 
 from sqlmodel import select
 
-from authentication.models import BaseRefreshTokenSchema
+from authentication.models import BaseRefreshToken
 from core.additional import create_token
 from core.config import project_config
 from core.database.crud import Crud
@@ -33,8 +33,8 @@ def create_login_token(user_id: int) -> str:
     return create_token({'user_id': user_id}, timedelta(minutes=10))
 
 
-def create_refresh_token(user_id: int) -> BaseRefreshTokenSchema:
-    return BaseRefreshTokenSchema(user_id=user_id, time_out=datetime.datetime.utcnow() + timedelta(days=90))
+def create_refresh_token(user_id: int) -> BaseRefreshToken:
+    return BaseRefreshToken(user_id=user_id, time_out=datetime.datetime.utcnow() + timedelta(days=90))
 
 
 def get_refresh_cookies_age(days: int) -> int:
@@ -42,8 +42,8 @@ def get_refresh_cookies_age(days: int) -> int:
 
 
 async def update_refresh_token(refresh_token: int) -> str | None:
-    database_refresh_token: BaseRefreshTokenSchema = \
-        await Crud.get(select(BaseRefreshTokenSchema).where(BaseRefreshTokenSchema.id == refresh_token))
+    database_refresh_token: BaseRefreshToken = \
+        await Crud.get(select(BaseRefreshToken).where(BaseRefreshToken.id == refresh_token))
     if database_refresh_token and database_refresh_token.time_out > datetime.datetime.utcnow():
         database_refresh_token.time_out = datetime.datetime.utcnow() + timedelta(days=90)
         await Crud.save(database_refresh_token)
@@ -53,7 +53,7 @@ async def update_refresh_token(refresh_token: int) -> str | None:
 
 
 async def new_refresh_token(user_id: int) -> int:
-    tokens = await Crud.get_all(select(BaseRefreshTokenSchema).where(BaseRefreshTokenSchema.user_id == user_id))
+    tokens = await Crud.get_all(select(BaseRefreshToken).where(BaseRefreshToken.user_id == user_id))
     if len(tokens) > 2:
         await Crud.delete(sorted(tokens, key=lambda x: x.time_out)[0])
     return await Crud.save(create_refresh_token(user_id))

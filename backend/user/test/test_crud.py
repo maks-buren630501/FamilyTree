@@ -1,6 +1,6 @@
 from unittest import IsolatedAsyncioTestCase
 
-from sqlalchemy.exc import IntegrityError, ProgrammingError
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
 from core.database.crud import Crud
