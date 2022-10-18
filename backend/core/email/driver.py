@@ -9,12 +9,12 @@ from core.email.config import mail_auth
 @singleton
 class Mail:
 
-    def __init__(self, gmail_user, gmail_password):
+    def __init__(self, gmail_user: str, host: str, port: int):
         try:
             self.user = gmail_user
-            self.server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            self.server.ehlo()
-            self.server.login(gmail_user, gmail_password)
+            self.host = host
+            self.port = port
+            self.server = smtplib.SMTP(host=self.host, port=self.port)
         except Exception as e:
             print('error mail connection', e)
             exit()
@@ -31,7 +31,6 @@ class Mail:
     def __del__(self):
         self.server.close()
 
-try:
-    mail = Mail(mail_auth.mail_user, mail_auth.password)
-except:
-    mail = 'Mail'
+
+mail = Mail(mail_auth.mail_user, mail_auth.mail_host, mail_auth.mail_port)
+

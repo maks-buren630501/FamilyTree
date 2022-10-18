@@ -8,7 +8,7 @@ from sqlmodel import select
 from authentication.models import BaseRefreshTokenSchema
 from core.additional import create_token
 from core.config import project_config
-from core.database.crud import BaseCrud
+from core.database.crud import Crud
 
 
 def hash_password(password) -> bytes:
@@ -43,17 +43,17 @@ def get_refresh_cookies_age(days: int) -> int:
 
 async def update_refresh_token(refresh_token: int) -> str | None:
     database_refresh_token: BaseRefreshTokenSchema = \
-        await BaseCrud.get(select(BaseRefreshTokenSchema).where(BaseRefreshTokenSchema.id == refresh_token))
+        await Crud.get(select(BaseRefreshTokenSchema).where(BaseRefreshTokenSchema.id == refresh_token))
     if database_refresh_token and database_refresh_token.time_out > datetime.datetime.utcnow():
         database_refresh_token.time_out = datetime.datetime.utcnow() + timedelta(days=90)
-        await BaseCrud.save(database_refresh_token)
+        await Crud.save(database_refresh_token)
         return create_login_token(database_refresh_token.user_id)
     else:
         return None
 
 
 async def new_refresh_token(user_id: int) -> int:
-    tokens = await BaseCrud.get_all(select(BaseRefreshTokenSchema).where(BaseRefreshTokenSchema.user_id == user_id))
+    tokens = await Crud.get_all(select(BaseRefreshTokenSchema).where(BaseRefreshTokenSchema.user_id == user_id))
     if len(tokens) > 2:
-        await BaseCrud.delete(sorted(tokens, key=lambda x: x.time_out)[0])
-    return await BaseCrud.save(create_refresh_token(user_id))
+        await Crud.delete(sorted(tokens, key=lambda x: x.time_out)[0])
+    return await Crud.save(create_refresh_token(user_id))

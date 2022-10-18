@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Response, status, Depends
+from fastapi import FastAPI, Response, status
 from jose import JWTError
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -11,7 +12,7 @@ from authentication.models import LoginUserSchema, UpdatePasswordSchema, Recover
 from authentication.functions import hash_password, create_registration_token, create_login_token, \
     new_refresh_token, get_refresh_cookies_age, update_refresh_token, create_password_recovery_token
 from core.additional import decode_token
-from core.database.crud import BaseCrud
+from core.database.crud import Crud
 from core.email.driver import mail
 from core.exception.base_exeption import UniqueIndexException
 from core.exception.http_exeption import NotUniqueIndex, TokenError
@@ -27,7 +28,10 @@ async def registration_user(user: UserSchemaCreate) -> int | Response:
         if len(user.password) < 8 or len(user.username) < 4:
             return Response(status_code=status.HTTP_406_NOT_ACCEPTABLE)
         password = hash_password(user.password)
-        new_user_id = await BaseCrud.save(UserDataBase(username=user.username, password=password, email=user.email))
+        try:
+            new_user_id = await Crud.save(UserDataBase(username=user.username, password=password, email=user.email))
+        except IntegrityError:
+            return Response(status_code=status.HTTP_409_CONFLICT)
         try:
             registration_token = create_registration_token(new_user_id).replace('.', '|')
             recovery_link = 'http://127.0.0.1:3000/'
@@ -38,8 +42,8 @@ async def registration_user(user: UserSchemaCreate) -> int | Response:
             )
             return new_user_id
         except Exception as e:
-            new_user = await BaseCrud.get(select(UserDataBase).where(UserDataBase.id == new_user_id))
-            await BaseCrud.delete(new_user)
+            new_user = await Crud.get(select(UserDataBase).where(UserDataBase.id == new_user_id))
+            await Crud.delete(new_user)
             raise e
     except UniqueIndexException as e:
         raise NotUniqueIndex(e)
@@ -51,10 +55,10 @@ async def activate_user(registration_token: str) -> Response:
         user_data = decode_token(registration_token.replace('|', '.'))
     except JWTError as e:
         raise TokenError(e)
-    user = await BaseCrud.get(select(UserDataBase).where(UserDataBase.id == user_data['user_id']))
+    user = await Crud.get(select(UserDataBase).where(UserDataBase.id == user_data['user_id']))
     if user:
         user.active = True
-        await BaseCrud.save(user)
+        await Crud.save(user)
         return Response(status_code=status.HTTP_201_CREATED)
     else:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
@@ -63,7 +67,7 @@ async def activate_user(registration_token: str) -> Response:
 @app_authentication.post('/login', **login_url_config.dict())
 async def login(user: LoginUserSchema, response: Response) -> Response | dict:
     user.password = hash_password(user.password)
-    database_user: UserDataBase = await BaseCrud.get(select(UserDataBase).where(UserDataBase.username == user.username))
+    database_user: UserDataBase = await Crud.get(select(UserDataBase).where(UserDataBase.username == user.username))
     if database_user and database_user.password == user.password and database_user.active:
         access_token = create_login_token(database_user.id)
         refresh_token = await new_refresh_token(database_user.id)
@@ -97,10 +101,10 @@ async def logout(request: Request, response: Response) -> Response | None:
     else:
         if request.cookies.get('refresh_token'):
             refresh_token_id = int(request.cookies['refresh_token'])
-            refresh_token = await BaseCrud.get(select(BaseRefreshTokenSchema).
-                                               where(BaseRefreshTokenSchema.id == refresh_token_id))
+            refresh_token = await Crud.get(select(BaseRefreshTokenSchema).
+                                           where(BaseRefreshTokenSchema.id == refresh_token_id))
             if refresh_token:
-                await BaseCrud.delete(refresh_token)
+                await Crud.delete(refresh_token)
             response.delete_cookie(key='refresh_token', httponly=True, path='/')
         response.status_code = status.HTTP_200_OK
         return
@@ -108,7 +112,7 @@ async def logout(request: Request, response: Response) -> Response | None:
 
 @app_authentication.post('/start_recovery_password')
 async def start_recovery_password(data: RecoveryPasswordSchema) -> Response:
-    data_base_user = await BaseCrud.get(select(UserDataBase).where(UserDataBase.email == data.email))
+    data_base_user = await Crud.get(select(UserDataBase).where(UserDataBase.email == data.email))
     if data_base_user:
         password_recovery_token = create_password_recovery_token(data_base_user['id']).replace('.', '|')
         recovery_link = 'http://127.0.0.1:3000/forgot/'
@@ -142,10 +146,10 @@ async def recovery_password(password_recovery_token: str, data: UpdatePasswordSc
         raise TokenError(e)
     if user_data.get('recovery'):
         password = hash_password(data.password)
-        user = await BaseCrud.get(select(UserDataBase).where(UserDataBase.id == user_data['user_id']))
+        user = await Crud.get(select(UserDataBase).where(UserDataBase.id == user_data['user_id']))
         if user:
             user.password = password
-            await BaseCrud.save(user)
+            await Crud.save(user)
         else:
             return Response(status_code=status.HTTP_406_NOT_ACCEPTABLE)
     else:
