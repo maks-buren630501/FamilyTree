@@ -4,15 +4,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
 from core.database.crud import Crud
-from core.database.driver import init_db
 from core.database.migrations import clear_tables
 from user.models import UserDataBase
 
 
 class UserCrudTestCase(IsolatedAsyncioTestCase):
-
-    async def asyncSetUp(self) -> None:
-        init_db()
 
     async def asyncTearDown(self):
         await clear_tables()

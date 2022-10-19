@@ -16,8 +16,7 @@ from authentication.functions import hash_password, create_registration_token, c
 from core.additional import decode_token
 from core.database.crud import Crud
 from core.email.driver import mail
-from core.exception.base_exeption import UniqueIndexException
-from core.exception.http_exeption import NotUniqueIndex, TokenError
+from core.exception.http_exeption import TokenError
 from core.middleware import error_handler_middleware
 from user.models import UserSchemaCreate, UserDataBase
 

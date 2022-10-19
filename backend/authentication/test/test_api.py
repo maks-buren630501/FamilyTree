@@ -5,16 +5,12 @@ from httpx import AsyncClient
 from sqlmodel import select
 
 from core.database.crud import Crud
-from core.database.driver import init_db
 from core.database.migrations import clear_tables
 from main import app
 from user.models import UserDataBase
 
 
 class AuthenticationApiTestCase(IsolatedAsyncioTestCase):
-
-    async def asyncSetUp(self):
-        init_db()
 
     async def asyncTearDown(self):
         await clear_tables()
