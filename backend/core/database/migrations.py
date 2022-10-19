@@ -1,5 +1,4 @@
 import importlib
-import os
 
 from sqlmodel import SQLModel
 
@@ -27,18 +26,6 @@ async def clear_tables() -> None:
         for table in SQLModel.metadata.sorted_tables:
             await conn.execute(table.delete())
 
-
-def make_migrations():
-    os.makedirs(os.environ.get('version_location', 'migrations/versions'), exist_ok=True)
-    os.system(f'alembic revision --autogenerate -m "init"')
-
-
-def migrate():
-    os.system(f'alembic upgrade head')
-
-
-def downgrade(revision='-1'):
-    os.system(f'alembic downgrade {revision}')
 
 
 
