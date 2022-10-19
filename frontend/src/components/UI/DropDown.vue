@@ -1,8 +1,11 @@
 <template>
-  <div class="relative" v-click-outside="closeDropDown">
-    <slot name="activator" :change="changeDropDown" :open="openDropDown" :close="closeDropDown"></slot>
+  <div class="relative" v-click-outside="clickOutside">
+    <slot name="activator"></slot>
     <transition name="dropdown">
-      <div v-show="dropdown" class="z-10 overflow-y-auto max-h-screen-2/3 absolute top-12 bg-white min-w-full divide-y divide-gray-100 shadow">
+      <div
+        v-show="dropdown"
+        class="z-10 overflow-y-auto max-h-screen-2/3 absolute top-12 bg-white min-w-full divide-y divide-gray-100 shadow"
+      >
         <slot name="body"></slot>
       </div>
     </transition>
@@ -10,20 +13,33 @@
 </template>
 
 <script setup>
-import {ref} from "vue";
+import { computed } from "vue";
 
-const dropdown = ref(false)
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+  },
+  closeOnClick: {
+    type: Boolean,
+    default: false,
+  },
+});
 
-function changeDropDown() {
-  dropdown.value = !dropdown.value
-}
+const emit = defineEmits(["update:modelValue"]);
 
-function openDropDown() {
-  dropdown.value = true
-}
+const dropdown = computed({
+  get() {
+    return props.modelValue;
+  },
+  set(value) {
+    emit("update:modelValue", value);
+  },
+});
 
-function closeDropDown() {
-  dropdown.value = false
+function clickOutside() {
+  if (props.closeOnClick) {
+    dropdown.value = false;
+  }
 }
 </script>
 
@@ -32,6 +48,7 @@ function closeDropDown() {
 .dropdown-leave-active {
   transition: all 0.5s ease;
 }
+
 .dropdown-enter-from,
 .dropdown-leave-to {
   opacity: 0;
