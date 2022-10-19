@@ -36,7 +36,7 @@ async def registration_user(user: UserSchemaCreate) -> uuid.UUID | Response:
             return Response(status_code=status.HTTP_409_CONFLICT)
         try:
             registration_token = create_registration_token(new_user_id).replace('.', '|')
-            recovery_link = 'http://127.0.0.1:3000/'
+            recovery_link = 'http://127.0.0.1:5173/'
             mail.send_message(
                 user.email,
                 'Activate account FamilyTree',
@@ -114,10 +114,10 @@ async def logout(request: Request, response: Response) -> Response | None:
 
 @app_authentication.post('/start_recovery_password')
 async def start_recovery_password(data: RecoveryPasswordSchema) -> Response:
-    data_base_user = await Crud.get(select(UserDataBase).where(UserDataBase.email == data.email))
+    data_base_user: UserDataBase = await Crud.get(select(UserDataBase).where(UserDataBase.email == data.email))
     if data_base_user:
-        password_recovery_token = create_password_recovery_token(data_base_user['id']).replace('.', '|')
-        recovery_link = 'http://127.0.0.1:3000/forgot/'
+        password_recovery_token = create_password_recovery_token(data_base_user.id).replace('.', '|')
+        recovery_link = 'http://127.0.0.1:5173/forgot/'
         mail.send_message(
             data.email,
             'Recovery password',
