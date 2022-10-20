@@ -1,4 +1,5 @@
 import uuid
+from typing import Any
 
 from sqlalchemy.exc import ProgrammingError, StatementError, IntegrityError
 from sqlmodel.sql.expression import Select, SelectOfScalar
@@ -21,7 +22,7 @@ class Crud:
                 return result
 
     @staticmethod
-    async def get(select: Select | SelectOfScalar):
+    async def get(select: Select | SelectOfScalar) -> Any:
         result = await Crud.base_get(select)
         return result.first() if result is not None else None
 

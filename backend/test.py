@@ -7,6 +7,7 @@ os.environ["config_path"] = config_path
 
 from core.database.migrations import create_db_and_tables, drop_tables
 
+
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     coroutine = create_db_and_tables()
@@ -14,3 +15,4 @@ if __name__ == '__main__':
     os.system('python3 -m unittest')
     coroutine = drop_tables()
     loop.run_until_complete(coroutine)
+

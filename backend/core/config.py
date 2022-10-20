@@ -45,6 +45,13 @@ applications = [
     'user'
 ]
 
+origins = [
+    "http://127.0.0.1:5173",
+    "http://localhost:5173"
+]
+
+recovery_link = 'http://127.0.0.1:5173/'
+
 
 project_config = load_config(os.environ.get('config_path', 'config.yaml'))
 

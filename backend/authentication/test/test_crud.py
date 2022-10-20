@@ -11,11 +11,13 @@ from user.models import UserDataBase
 
 class AuthenticationCrudTestCase(IsolatedAsyncioTestCase):
 
+    user_data: dict = {'username': 'pushkin', 'password': b'veverbi344', 'email': 'pushkin@mail.com'}
+
     async def asyncTearDown(self):
         await clear_tables()
 
     async def test_get_refresh_token_by_id(self):
-        user = await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
+        user = await Crud.save(UserDataBase(**self.user_data))
         token = await Crud.save(create_refresh_token(user))
         token_data: BaseRefreshToken = await Crud.get(select(BaseRefreshToken).where(BaseRefreshToken.id == token))
         self.assertEqual(token_data.user_id, user)
@@ -29,7 +31,7 @@ class AuthenticationCrudTestCase(IsolatedAsyncioTestCase):
         self.assertIsNone(token_data)
 
     async def test_get_all_tokens(self):
-        user = await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
+        user = await Crud.save(UserDataBase(**self.user_data))
         await Crud.save(create_refresh_token(user))
         await Crud.save(create_refresh_token(user))
         await Crud.save(create_refresh_token(user))
@@ -38,7 +40,7 @@ class AuthenticationCrudTestCase(IsolatedAsyncioTestCase):
         self.assertEqual(3, len(tokens))
 
     async def test_remove_token(self):
-        user = await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
+        user = await Crud.save(UserDataBase(**self.user_data))
         await Crud.save(create_refresh_token(user))
         token_id = await Crud.save(create_refresh_token(user))
         token = await Crud.get(select(BaseRefreshToken).where(BaseRefreshToken.id == token_id))
@@ -49,7 +51,7 @@ class AuthenticationCrudTestCase(IsolatedAsyncioTestCase):
         self.assertIsNone(token)
 
     async def test_find_token(self):
-        user = await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
+        user = await Crud.save(UserDataBase(**self.user_data))
         await Crud.save(create_refresh_token(user))
         await Crud.save(create_refresh_token(user))
         tokens = await Crud.get_all(select(BaseRefreshToken).where(BaseRefreshToken.user_id == user))
@@ -57,7 +59,7 @@ class AuthenticationCrudTestCase(IsolatedAsyncioTestCase):
         self.assertEqual(2, len(tokens))
 
     async def test_find_not_exist_token(self):
-        user = await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
+        user = await Crud.save(UserDataBase(**self.user_data))
         await Crud.save(create_refresh_token(user))
         tokens = await Crud.get_all(select(BaseRefreshToken).where(BaseRefreshToken.user_id == ('user'+'1')))
         self.assertIsInstance(tokens, list)
