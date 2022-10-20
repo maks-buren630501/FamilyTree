@@ -1,10 +1,10 @@
 from unittest import IsolatedAsyncioTestCase
 
-from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
 from core.database.crud import Crud
 from core.database.migrations import clear_tables
+from core.exception.base_exeption import UniqueIndexException
 from user.models import UserDataBase
 
 
@@ -30,9 +30,9 @@ class UserCrudTestCase(IsolatedAsyncioTestCase):
 
     async def test_create_with_same_email(self):
         await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))
-        with self.assertRaises(IntegrityError) as e:
+        with self.assertRaises(UniqueIndexException) as e:
             await Crud.save(UserDataBase(username='zero', password=b'343g3ewqe23', email='pushkin@mail.com'))
-            self.assertIsInstance(e, IntegrityError)
+            self.assertIsInstance(e, UniqueIndexException)
 
     async def test_get_all_users(self):
         await Crud.save(UserDataBase(username='pushkin', password=b'veverbi344', email='pushkin@mail.com'))

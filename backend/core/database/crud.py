@@ -1,10 +1,11 @@
 import uuid
 
-from sqlalchemy.exc import ProgrammingError, StatementError
+from sqlalchemy.exc import ProgrammingError, StatementError, IntegrityError
 from sqlmodel.sql.expression import Select, SelectOfScalar
 
 from core.database.driver import get_session
 from core.database.models import BaseModel
+from core.exception.base_exeption import UniqueIndexException
 
 
 class Crud:
@@ -32,8 +33,11 @@ class Crud:
     @staticmethod
     async def save(database_object: BaseModel) -> uuid.UUID:
         async with get_session() as session:
-            session.add(database_object)
-            await session.commit()
+            try:
+                session.add(database_object)
+                await session.commit()
+            except IntegrityError as e:
+                raise UniqueIndexException(e)
             await session.refresh(database_object)
             return database_object.id
 

@@ -2,7 +2,6 @@ import uuid
 
 from fastapi import FastAPI, Response, status
 from jose import JWTError
-from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -16,7 +15,8 @@ from authentication.functions import hash_password, create_registration_token, c
 from core.additional import decode_token
 from core.database.crud import Crud
 from core.email.driver import mail
-from core.exception.http_exeption import TokenError
+from core.exception.base_exeption import UniqueIndexException
+from core.exception.http_exeption import TokenError, NotUniqueIndex
 from core.middleware import error_handler_middleware
 from user.models import UserSchemaCreate, UserDataBase
 
@@ -30,8 +30,8 @@ async def registration_user(user: UserSchemaCreate) -> uuid.UUID | Response:
     password = hash_password(user.password)
     try:
         new_user_id = await Crud.save(UserDataBase(username=user.username, password=password, email=user.email))
-    except IntegrityError:
-        return Response(status_code=status.HTTP_409_CONFLICT)
+    except UniqueIndexException as e:
+        raise NotUniqueIndex(e)
     try:
         registration_token = create_registration_token(new_user_id).replace('.', '|')
         recovery_link = 'http://127.0.0.1:5173/'
