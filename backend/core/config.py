@@ -42,7 +42,8 @@ def load_config(path: str) -> dict:
 
 applications = [
     'authentication',
-    'user'
+    'user',
+    'tree'
 ]
 
 origins = [

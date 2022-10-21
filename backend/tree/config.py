@@ -1,8 +1,11 @@
+import uuid
+from typing import List
+
 from starlette import status
 
 from core.additional import BaseUrlConfig
 from core.config import ResponseDescription
-from tree.schemas import NodeSchemaGet
+from tree.models import BaseNodeSchema
 
 
 class NodeUrlConfig(BaseUrlConfig):
@@ -14,9 +17,19 @@ get_node_url_config = NodeUrlConfig(
     name='Узел дерева',
     description='Получить узел дерева по его ID',
     responses={
-        status.HTTP_204_NO_CONTENT: ResponseDescription.NO_CONTENT.value
+        status.HTTP_204_NO_CONTENT: ResponseDescription.NO_CONTENT.value,
+        status.HTTP_403_FORBIDDEN: ResponseDescription.NO_CONTENT.value
     },
-    response_model=NodeSchemaGet,
+    response_model=BaseNodeSchema,
+    status_code=status.HTTP_200_OK
+)
+
+
+get_nodes_url_config = NodeUrlConfig(
+    tags=['node'],
+    name='Узел дерева',
+    description='Получить узел дерева по его ID',
+    response_model=List[BaseNodeSchema],
     status_code=status.HTTP_200_OK
 )
 
@@ -29,7 +42,7 @@ create_node_url_config = NodeUrlConfig(
         status.HTTP_401_UNAUTHORIZED: ResponseDescription.CONFLICT.value,
         status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value
     },
-    response_model=str,
+    response_model=uuid.UUID,
     status_code=status.HTTP_201_CREATED
 )
 
