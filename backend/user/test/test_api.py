@@ -87,7 +87,7 @@ class UserApiTestCase(IsolatedAsyncioTestCase):
         async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
             response = await ac.put(f"/user/{user_id}", json=data)
         self.assertEqual(response.status_code, 201)
-        update_user_id = response.content.decode("utf-8").replace('\"','')
+        update_user_id = response.content.decode("utf-8").replace('\"', '')
         self.assertEqual(update_user_id, str(user_id))
         database_user: UserDataBase = await Crud.get(select(UserDataBase).where(UserDataBase.id == user_id))
         self.assertEqual(database_user.username, 'andrey')

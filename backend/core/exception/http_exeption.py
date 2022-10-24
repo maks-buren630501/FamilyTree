@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from jose import JWTError
 
-from core.exception.base_exeption import UniqueIndexException
+from core.exception.base_exeption import UniqueIndexException, ForeignKeyErrorException
 
 
 class NotUniqueIndex(HTTPException):
@@ -10,6 +10,15 @@ class NotUniqueIndex(HTTPException):
     def __init__(self, exc: UniqueIndexException):
         self.message = exc.message
         self.status_code = status.HTTP_409_CONFLICT
+        super().__init__(detail={'message': self.message}, status_code=self.status_code)
+
+
+class ForeignKeyError(HTTPException):
+    """Обработчик ошибки занесения неверного внешнего ключа."""
+
+    def __init__(self, exc: ForeignKeyErrorException):
+        self.message = exc.message
+        self.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
         super().__init__(detail={'message': self.message}, status_code=self.status_code)
 
 

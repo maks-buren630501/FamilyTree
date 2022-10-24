@@ -50,9 +50,9 @@ async def create_user(user: UserSchemaCreate) -> uuid.UUID | Response:
 async def update_user(user_id: str, user: UpdateUserSchema) -> uuid.UUID | Response:
     database_user: UserDataBase = await Crud.get(select(UserDataBase).where(UserDataBase.id == user_id))
     if database_user:
-        database_user.email = user.email if user.email else database_user.email
-        database_user.password = user.password if user.password else database_user.password
-        database_user.username = user.username if user.username else database_user.username
+        data_to_update = user.dict(exclude_unset=True)
+        for key, value in data_to_update.items():
+            setattr(database_user, key, value)
         try:
             return await Crud.save(database_user)
         except UniqueIndexException as e:

@@ -6,7 +6,7 @@ from sqlmodel.sql.expression import Select, SelectOfScalar
 
 from core.database.driver import get_session
 from core.database.models import BaseModel
-from core.exception.base_exeption import UniqueIndexException
+from core.exception.base_exeption import UniqueIndexException, ForeignKeyErrorException
 
 
 class Crud:
@@ -38,7 +38,15 @@ class Crud:
                 session.add(database_object)
                 await session.commit()
             except IntegrityError as e:
-                raise UniqueIndexException(e)
+                sqlstate = e.orig.sqlstate
+                if sqlstate == '23505':
+                    raise UniqueIndexException(e)
+                elif sqlstate == '23503':
+                    raise ForeignKeyErrorException(e)
+                else:
+                    raise e
+            except Exception as e:
+                raise e
             await session.refresh(database_object)
             return database_object.id
 

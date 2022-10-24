@@ -1,8 +1,5 @@
-from typing import List
-
 from pydantic import EmailStr
-from sqlalchemy.orm import relationship
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field
 
 from core.database.models import BaseModel
 
@@ -22,10 +19,6 @@ class UserSchemaCreate(BaseUserSchema):
 
 class UserDataBase(UserSchemaGet, table=True):
     password: bytes
-    refresh_tokens: List['BaseRefreshToken'] = Relationship(back_populates='user')
-    open_node_links: List['UserNodeMapper'] = Relationship(back_populates='user')
-    nodes: 'NodeDataBase' = Relationship(sa_relationship=relationship('NodeDataBase', remote_side='author_id'))
-    node: 'NodeDataBase' = Relationship(sa_relationship=relationship('NodeDataBase', remote_side='user_id'))
 
 
 class UpdateUserSchema(SQLModel):

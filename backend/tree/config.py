@@ -5,7 +5,7 @@ from starlette import status
 
 from core.additional import BaseUrlConfig
 from core.config import ResponseDescription
-from tree.models import BaseNodeSchema
+from tree.models import NodeSchemaGet
 
 
 class NodeUrlConfig(BaseUrlConfig):
@@ -20,7 +20,7 @@ get_node_url_config = NodeUrlConfig(
         status.HTTP_204_NO_CONTENT: ResponseDescription.NO_CONTENT.value,
         status.HTTP_403_FORBIDDEN: ResponseDescription.NO_CONTENT.value
     },
-    response_model=BaseNodeSchema,
+    response_model=NodeSchemaGet,
     status_code=status.HTTP_200_OK
 )
 
@@ -29,7 +29,7 @@ get_nodes_url_config = NodeUrlConfig(
     tags=['node'],
     name='Узел дерева',
     description='Получить узел дерева по его ID',
-    response_model=List[BaseNodeSchema],
+    response_model=List[NodeSchemaGet],
     status_code=status.HTTP_200_OK
 )
 
@@ -50,14 +50,26 @@ create_node_url_config = NodeUrlConfig(
 update_node_url_config = NodeUrlConfig(
     tags=['node'],
     name='Обновить узел дерева',
-    description='Обновить сведения о человеке в системе',
+    description='Обновить информацию о человеке',
     responses={
-        status.HTTP_204_NO_CONTENT: ResponseDescription.NO_CONTENT.value,
+        status.HTTP_204_NO_CONTENT: ResponseDescription.CONFLICT.value,
         status.HTTP_401_UNAUTHORIZED: ResponseDescription.CONFLICT.value,
-        status.HTTP_403_FORBIDDEN: ResponseDescription.CONFLICT.value,
         status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value
     },
-    response_model=str,
+    response_model=uuid.UUID,
+    status_code=status.HTTP_201_CREATED
+)
+
+
+create_partner_url_config = NodeUrlConfig(
+    tags=['node'],
+    name='Создать брак',
+    description='Добавить семейную связь (муж/жена)',
+    responses={
+        status.HTTP_401_UNAUTHORIZED: ResponseDescription.CONFLICT.value,
+        status.HTTP_422_UNPROCESSABLE_ENTITY: ResponseDescription.CONFLICT.value
+    },
+    response_model=uuid.UUID,
     status_code=status.HTTP_201_CREATED
 )
 
