@@ -2,7 +2,6 @@ import uuid
 from typing import List
 
 from fastapi import FastAPI
-from sqlmodel import select, or_
 from starlette import status
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -15,10 +14,14 @@ from core.exception.base_exeption import UniqueIndexException, ForeignKeyErrorEx
 from core.exception.http_exeption import NotUniqueIndex, ForeignKeyError
 from core.middleware import error_handler_middleware
 from tree.config import get_node_url_config, create_node_url_config, get_nodes_url_config, update_node_url_config, \
-    create_partner_url_config
-from tree.functions import get_partner
-from tree.models import BaseNodeSchema, NodeDataBase, UserNodeMapper, PartnersMapper, BasePartners, NodeSchemaGet, \
+    create_partner_url_config, delete_node_url_config, search_nodes_url_config, find_nodes_url_config, \
+    get_children_url_config
+from tree.functions import get_partner, get_nodes_from_query_result
+from tree.models import BaseNodeSchema, NodeDataBase, PartnersMapper, BasePartners, NodeSchemaGet, \
     NodeSchemaUpdate
+from tree.queries import get_select_node_with_users_and_partners_query, get_select_nodes_with_partners_query, \
+    get_select_node_with_users_query, get_search_nodes_with_partners_query, get_find_nodes_with_partners_query, \
+    get_select_children_with_partners_query
 
 app_tree = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_handler_middleware)])
 
@@ -27,13 +30,7 @@ app_tree = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_han
 @must_authentication
 async def get_node(request: Request, node_id: str) -> NodeSchemaGet | Response:
     user_id = uuid.UUID(request.scope['user'])
-    result = await Crud.get_all(select(NodeDataBase, UserNodeMapper, PartnersMapper).
-                                join(UserNodeMapper, isouter=True).
-                                join(PartnersMapper,
-                                     or_(PartnersMapper.husband_id == NodeDataBase.id,
-                                         PartnersMapper.wife_id == NodeDataBase.id),
-                                     isouter=True).
-                                where(NodeDataBase.id == node_id))
+    result = await Crud.get_all(get_select_node_with_users_and_partners_query(node_id))
     if len(result) > 0:
         node: NodeDataBase = result[0][0]
         partners = [get_partner(item[2], node_id) for item in result if item[2]]
@@ -49,22 +46,32 @@ async def get_node(request: Request, node_id: str) -> NodeSchemaGet | Response:
 @must_authentication
 async def get_nodes(request: Request) -> List[NodeSchemaGet]:
     user_id = request.scope['user']
-    result = await Crud.get_all(select(NodeDataBase, PartnersMapper).join(UserNodeMapper, isouter=True).
-                                join(PartnersMapper,
-                                     or_(PartnersMapper.husband_id == NodeDataBase.id,
-                                         PartnersMapper.wife_id == NodeDataBase.id),
-                                     isouter=True).
-                                where(or_(UserNodeMapper.user_id == user_id,
-                                          NodeDataBase.user_id == user_id,
-                                          NodeDataBase.author_id == user_id)))
-    nodes = {}
-    for item in result:
-        partner = get_partner(item[1], item[0].id)
-        if nodes.get(item[0].id) is None:
-            nodes[item[0].id] = NodeSchemaGet(**item[0].__dict__, partners=[partner])
-        else:
-            nodes[item[0].id].partners.append(partner)
-    return list(nodes.values())
+    result = await Crud.get_all(get_select_nodes_with_partners_query(user_id))
+    return get_nodes_from_query_result(result)
+
+
+@app_tree.get('/children/{node_id}', **get_children_url_config.dict(), response_model_exclude_unset=True)
+@must_authentication
+async def get_children(request: Request, node_id: str) -> List[NodeSchemaGet]:
+    user_id = request.scope['user']
+    result = await Crud.get_all(get_select_children_with_partners_query(user_id, node_id))
+    return get_nodes_from_query_result(result)
+
+
+@app_tree.get('/search/{query}', **search_nodes_url_config.dict(), response_model_exclude_unset=True)
+@must_authentication
+async def search_nodes(request: Request, query: str) -> List[NodeSchemaGet]:
+    user_id = request.scope['user']
+    result = await Crud.get_all(get_search_nodes_with_partners_query(user_id, query))
+    return get_nodes_from_query_result(result)
+
+
+@app_tree.post('/find', **find_nodes_url_config.dict(), response_model_exclude_unset=True)
+@must_authentication
+async def search_nodes(request: Request, node: NodeSchemaUpdate) -> List[NodeSchemaGet]:
+    user_id = request.scope['user']
+    result = await Crud.get_all(get_find_nodes_with_partners_query(user_id, node))
+    return get_nodes_from_query_result(result)
 
 
 @app_tree.post('/', **create_node_url_config.dict())
@@ -85,9 +92,7 @@ async def create_node(request: Request, node: BaseNodeSchema) -> uuid.UUID | Res
 @must_authentication
 async def update_node(request: Request, node_id: str, node_update: NodeSchemaUpdate) -> uuid.UUID | Response:
     user_id = uuid.UUID(request.scope['user'])
-    result = await Crud.get_all(select(NodeDataBase, UserNodeMapper).
-                                join(UserNodeMapper, isouter=True).
-                                where(NodeDataBase.id == node_id))
+    result = await Crud.get_all(get_select_node_with_users_query(node_id))
     if len(result) > 0:
         node: NodeDataBase = result[0][0]
         if user_id in [item[1].user_id for item in result if item[1]] + [node.author_id, node.user_id]:
@@ -100,6 +105,22 @@ async def update_node(request: Request, node_id: str, node_update: NodeSchemaUpd
                 raise NotUniqueIndex(e)
             except ForeignKeyErrorException as e:
                 raise ForeignKeyError(e)
+        else:
+            Response(status_code=status.HTTP_403_FORBIDDEN)
+    else:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app_tree.delete('/{node_id}', **delete_node_url_config.dict())
+@must_authentication
+async def delete_node(request: Request, node_id: str) -> Response:
+    user_id = uuid.UUID(request.scope['user'])
+    result = await Crud.get_all(get_select_node_with_users_query(node_id))
+    if len(result) > 0:
+        node: NodeDataBase = result[0][0]
+        if user_id in [item[1].user_id for item in result if item[1]] + [node.author_id, node.user_id]:
+            await Crud.delete(node)
+            return Response(status_code=status.HTTP_200_OK)
         else:
             Response(status_code=status.HTTP_403_FORBIDDEN)
     else:

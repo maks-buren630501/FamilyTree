@@ -34,6 +34,33 @@ get_nodes_url_config = NodeUrlConfig(
 )
 
 
+get_children_url_config = NodeUrlConfig(
+    tags=['node'],
+    name='Дети',
+    description='Получить детей по ID',
+    response_model=List[NodeSchemaGet],
+    status_code=status.HTTP_200_OK
+)
+
+
+search_nodes_url_config = NodeUrlConfig(
+    tags=['node'],
+    name='Найти узел дерева',
+    description='Найти узел дерева по строке',
+    response_model=List[NodeSchemaGet],
+    status_code=status.HTTP_200_OK
+)
+
+
+find_nodes_url_config = NodeUrlConfig(
+    tags=['node'],
+    name='Найти узел дерева',
+    description='Найти узел дерева по его параметрам',
+    response_model=List[NodeSchemaGet],
+    status_code=status.HTTP_200_OK
+)
+
+
 create_node_url_config = NodeUrlConfig(
     tags=['node'],
     name='Создать узел дерева',
