@@ -81,6 +81,7 @@ update_node_url_config = NodeUrlConfig(
     responses={
         status.HTTP_204_NO_CONTENT: ResponseDescription.CONFLICT.value,
         status.HTTP_401_UNAUTHORIZED: ResponseDescription.CONFLICT.value,
+        status.HTTP_403_FORBIDDEN: ResponseDescription.CONFLICT.value,
         status.HTTP_409_CONFLICT: ResponseDescription.CONFLICT.value
     },
     response_model=uuid.UUID,
