@@ -5,7 +5,6 @@ from fastapi import FastAPI, Depends
 from starlette import status
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
 from starlette.responses import Response
 
 from core.database.crud import Crud
@@ -38,9 +37,8 @@ async def get_node(node_id: str) -> NodeSchemaGet | Response:
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app_tree.get('/', **get_nodes_url_config.dict(), dependencies=[Depends(must_authentication)])
-async def get_nodes(request: Request) -> List[NodeSchemaGet]:
-    user_id = request.scope['user']
+@app_tree.get('/', **get_nodes_url_config.dict())
+async def get_nodes(user_id: str = Depends(must_authentication)) -> List[NodeSchemaGet]:
     result = await Crud.get_all(get_select_nodes_with_partners_query_by_user(user_id))
     return get_nodes_from_query_result(result)
 
@@ -63,11 +61,10 @@ async def find_nodes(node: NodeSchemaUpdate) -> List[NodeSchemaGet]:
     return get_nodes_from_query_result(result)
 
 
-@app_tree.post('/', **create_node_url_config.dict(), dependencies=[Depends(must_authentication)])
-async def create_node(request: Request, node: BaseNodeSchema) -> uuid.UUID | Response:
-    author_id = request.scope['user']
+@app_tree.post('/', **create_node_url_config.dict())
+async def create_node(node: BaseNodeSchema, user_id: str = Depends(must_authentication)) -> uuid.UUID | Response:
     try:
-        new_node = await Crud.save(NodeDataBase(**node.__dict__, author_id=author_id))
+        new_node = await Crud.save(NodeDataBase(**node.__dict__, author_id=user_id))
     except UniqueIndexException as e:
         raise NotUniqueIndex(e)
     except ForeignKeyErrorException as e:
@@ -76,13 +73,12 @@ async def create_node(request: Request, node: BaseNodeSchema) -> uuid.UUID | Res
         return new_node
 
 
-@app_tree.put('/{node_id}', **update_node_url_config.dict(), dependencies=[Depends(must_authentication)])
-async def update_node(request: Request, node_id: str, node_update: NodeSchemaUpdate) -> uuid.UUID | Response:
-    user_id = uuid.UUID(request.scope['user'])
+@app_tree.put('/{node_id}', **update_node_url_config.dict())
+async def update_node(node_id: str, node_update: NodeSchemaUpdate, user_id: str = Depends(must_authentication)) -> uuid.UUID | Response:
     result = await Crud.get_all(get_select_node_with_users_query(node_id))
     if len(result) > 0:
         node: NodeDataBase = result[0][0]
-        if user_id in [item[1].user_id for item in result if item[1]] + [node.author_id, node.user_id]:
+        if uuid.UUID(user_id) in [item[1].user_id for item in result if item[1]] + [node.author_id, node.user_id]:
             data_to_update = node_update.dict(exclude_unset=True)
             for key, value in data_to_update.items():
                 setattr(node, key, value)
@@ -98,13 +94,12 @@ async def update_node(request: Request, node_id: str, node_update: NodeSchemaUpd
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app_tree.delete('/{node_id}', **delete_node_url_config.dict(), dependencies=[Depends(must_authentication)])
-async def delete_node(request: Request, node_id: str) -> Response:
-    user_id = uuid.UUID(request.scope['user'])
+@app_tree.delete('/{node_id}', **delete_node_url_config.dict())
+async def delete_node(node_id: str, user_id: str = Depends(must_authentication)) -> Response:
     result = await Crud.get_all(get_select_node_with_users_query(node_id))
     if len(result) > 0:
         node: NodeDataBase = result[0][0]
-        if user_id in [item[1].user_id for item in result if item[1]] + [node.author_id, node.user_id]:
+        if uuid.UUID(user_id) in [item[1].user_id for item in result if item[1]] + [node.author_id, node.user_id]:
             await Crud.delete(node)
             return Response(status_code=status.HTTP_200_OK)
         else:
