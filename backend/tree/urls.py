@@ -108,10 +108,25 @@ async def delete_node(node_id: str, user_id: str = Depends(must_authentication))
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app_tree.post('/partner', **create_partner_url_config.dict(), dependencies=[Depends(must_authentication)])
-async def create_partner(partner_mapper: BasePartners) -> uuid.UUID | Response:
-    try:
-        return await Crud.save(PartnersMapper(**partner_mapper.__dict__))
-    except ForeignKeyErrorException as e:
-        raise ForeignKeyError(e)
+@app_tree.post('/partner', **create_partner_url_config.dict())
+async def create_partner(partner_mapper: BasePartners, user_id: str = Depends(must_authentication)) -> uuid.UUID | Response:
+    husband_id = partner_mapper.husband_id
+    wife_id = partner_mapper.wife_id
+    husband_data = await Crud.get_all(get_select_node_with_users_query(str(husband_id)))
+    wife_data = await Crud.get_all(get_select_node_with_users_query(str(wife_id)))
+    if len(husband_data) > 0 and len(wife_data) > 0:
+        husband: NodeDataBase = husband_data[0][0]
+        wife: NodeDataBase = wife_data[0][0]
+        if uuid.UUID(user_id) in [item[1].user_id for item in husband_data if item[1]] + \
+                [item[1].user_id for item in wife_data if item[1]] + \
+                [husband.author_id, husband.user_id, wife.author_id, wife.user_id]:
+            try:
+                return await Crud.save(PartnersMapper(**partner_mapper.__dict__))
+            except ForeignKeyErrorException as e:
+                raise ForeignKeyError(e)
+        else:
+            return Response(status_code=status.HTTP_403_FORBIDDEN)
+    else:
+        return Response(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
 
