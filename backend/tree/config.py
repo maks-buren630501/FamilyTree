@@ -89,19 +89,6 @@ update_node_url_config = NodeUrlConfig(
 )
 
 
-create_partner_url_config = NodeUrlConfig(
-    tags=['node'],
-    name='Создать брак',
-    description='Добавить семейную связь (муж/жена)',
-    responses={
-        status.HTTP_401_UNAUTHORIZED: ResponseDescription.CONFLICT.value,
-        status.HTTP_422_UNPROCESSABLE_ENTITY: ResponseDescription.CONFLICT.value
-    },
-    response_model=uuid.UUID,
-    status_code=status.HTTP_201_CREATED
-)
-
-
 delete_node_url_config = NodeUrlConfig(
     tags=['node'],
     name='Удалить узел дерева',
@@ -112,5 +99,45 @@ delete_node_url_config = NodeUrlConfig(
         status.HTTP_403_FORBIDDEN: ResponseDescription.CONFLICT.value,
     },
     response_model=str,
+    status_code=status.HTTP_200_OK
+)
+
+
+create_partner_url_config = NodeUrlConfig(
+    tags=['node'],
+    name='Создать брак',
+    description='Добавить семейную связь (муж/жена)',
+    responses={
+        status.HTTP_401_UNAUTHORIZED: ResponseDescription.CONFLICT.value,
+        status.HTTP_403_FORBIDDEN: ResponseDescription.CONFLICT.value,
+        status.HTTP_422_UNPROCESSABLE_ENTITY: ResponseDescription.CONFLICT.value
+    },
+    response_model=uuid.UUID,
+    status_code=status.HTTP_201_CREATED
+)
+
+
+update_partner_url_config = NodeUrlConfig(
+    tags=['node'],
+    name='Обновить брак',
+    description='Обновить брак',
+    responses={
+        status.HTTP_401_UNAUTHORIZED: ResponseDescription.CONFLICT.value,
+        status.HTTP_403_FORBIDDEN: ResponseDescription.CONFLICT.value,
+        status.HTTP_422_UNPROCESSABLE_ENTITY: ResponseDescription.CONFLICT.value
+    },
+    response_model=uuid.UUID,
+    status_code=status.HTTP_201_CREATED
+)
+
+delete_partner_url_config = NodeUrlConfig(
+    tags=['node'],
+    name='Удалить брак',
+    description='Удалить брак',
+    responses={
+        status.HTTP_401_UNAUTHORIZED: ResponseDescription.CONFLICT.value,
+        status.HTTP_403_FORBIDDEN: ResponseDescription.CONFLICT.value,
+    },
+    response_model=uuid.UUID,
     status_code=status.HTTP_200_OK
 )

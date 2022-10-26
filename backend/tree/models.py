@@ -19,11 +19,17 @@ class BasePartners(SQLModel):
     divorce_date: datetime.date | None
 
 
+class PartnersUpdate(BasePartners):
+    husband_id: uuid.UUID | None
+    wife_id: uuid.UUID | None
+
+
 class PartnersMapper(BaseModel, BasePartners, table=True):
     pass
 
 
 class PartnersGet(SQLModel):
+    id: uuid.UUID
     partner_id: uuid.UUID
 
     wedding_date: datetime.date | None

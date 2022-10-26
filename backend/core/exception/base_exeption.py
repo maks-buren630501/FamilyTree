@@ -17,3 +17,9 @@ class ForeignKeyErrorException(Exception):
         self.message = exc.args[0][exc.args[0].find(':'):exc.args[0].find('DETAIL')]
         self.detail = exc.detail
         super().__init__(self.detail, self.message)
+
+
+class NoDataException(Exception):
+    def __init__(self, message: str):
+        self.message = message
+        super().__init__(self.message)

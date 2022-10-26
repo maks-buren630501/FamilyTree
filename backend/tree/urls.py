@@ -9,19 +9,18 @@ from starlette.responses import Response
 
 from core.database.crud import Crud
 from core.dependencies import must_authentication
-from core.exception.base_exeption import UniqueIndexException, ForeignKeyErrorException
+from core.exception.base_exeption import UniqueIndexException, ForeignKeyErrorException, NoDataException
 from core.exception.http_exeption import NotUniqueIndex, ForeignKeyError
 from core.middleware import error_handler_middleware
 from tree.config import get_node_url_config, create_node_url_config, get_nodes_url_config, update_node_url_config, \
     create_partner_url_config, delete_node_url_config, search_nodes_url_config, find_nodes_url_config, \
-    get_children_url_config
-from tree.functions import get_partner, get_nodes_from_query_result
+    get_children_url_config, update_partner_url_config, delete_partner_url_config
+from tree.functions import get_partner, get_nodes_from_query_result, check_permission_to_nodes
 from tree.models import BaseNodeSchema, NodeDataBase, PartnersMapper, BasePartners, NodeSchemaGet, \
-    NodeSchemaUpdate
-from tree.queries import get_select_node_with_partners_query, get_select_node_with_users_query,\
-    get_search_nodes_with_partners_query, get_find_nodes_with_partners_query, get_select_children_with_partners_query,\
-    get_select_nodes_with_partners_query_by_user
-
+    NodeSchemaUpdate, PartnersUpdate
+from tree.queries import get_select_node_with_partners_query, get_select_node_with_users_query, \
+    get_search_nodes_with_partners_query, get_find_nodes_with_partners_query, get_select_children_with_partners_query, \
+    get_select_nodes_with_partners_query_by_user, get_select_partners
 
 app_tree = FastAPI(middleware=[Middleware(BaseHTTPMiddleware, dispatch=error_handler_middleware)])
 
@@ -112,21 +111,49 @@ async def delete_node(node_id: str, user_id: str = Depends(must_authentication))
 async def create_partner(partner_mapper: BasePartners, user_id: str = Depends(must_authentication)) -> uuid.UUID | Response:
     husband_id = partner_mapper.husband_id
     wife_id = partner_mapper.wife_id
-    husband_data = await Crud.get_all(get_select_node_with_users_query(str(husband_id)))
-    wife_data = await Crud.get_all(get_select_node_with_users_query(str(wife_id)))
-    if len(husband_data) > 0 and len(wife_data) > 0:
-        husband: NodeDataBase = husband_data[0][0]
-        wife: NodeDataBase = wife_data[0][0]
-        if uuid.UUID(user_id) in [item[1].user_id for item in husband_data if item[1]] + \
-                [item[1].user_id for item in wife_data if item[1]] + \
-                [husband.author_id, husband.user_id, wife.author_id, wife.user_id]:
+    try:
+        if await check_permission_to_nodes(uuid.UUID(user_id), [husband_id, wife_id]):
             try:
                 return await Crud.save(PartnersMapper(**partner_mapper.__dict__))
             except ForeignKeyErrorException as e:
                 raise ForeignKeyError(e)
         else:
             return Response(status_code=status.HTTP_403_FORBIDDEN)
-    else:
+    except NoDataException:
         return Response(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+
+@app_tree.put('/partner/{partners_id}', **update_partner_url_config.dict())
+async def update_partner(partners_id: str, partner_update: PartnersUpdate, user_id: str = Depends(must_authentication)) -> uuid.UUID | Response:
+    partners: PartnersMapper = await Crud.get(get_select_partners(partners_id))
+    if all((partners.wife_id != partner_update.wife_id, partner_update.wife_id is not None)) and \
+       all((partners.husband_id != partner_update.husband_id, partner_update.husband_id is not None)):
+        return Response(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+    new_partner_id = partner_update.wife_id if partners.wife_id != partner_update.wife_id else partner_update.wife_id
+    try:
+        if await check_permission_to_nodes(uuid.UUID(user_id), [partners.husband_id, partners.wife_id, new_partner_id]):
+            data_to_update = partner_update.dict(exclude_unset=True)
+            for key, value in data_to_update.items():
+                setattr(partners, key, value)
+            try:
+                return await Crud.save(partners)
+            except ForeignKeyErrorException as e:
+                raise ForeignKeyError(e)
+        else:
+            return Response(status_code=status.HTTP_403_FORBIDDEN)
+    except NoDataException:
+        return Response(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+
+@app_tree.delete('/partner/{partners_id}', **delete_partner_url_config.dict())
+async def delete_partner(partners_id: str, user_id: str = Depends(must_authentication)) -> Response:
+    partners: PartnersMapper = await Crud.get(get_select_partners(partners_id))
+    if await check_permission_to_nodes(uuid.UUID(user_id), [partners.husband_id, partners.wife_id]):
+        await Crud.delete(partners)
+        return Response(status_code=status.HTTP_200_OK)
+    else:
+        return Response(status_code=status.HTTP_403_FORBIDDEN)
+
+
 
 

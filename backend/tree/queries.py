@@ -48,3 +48,7 @@ def get_select_node_with_users_query(node_id: str) -> Select | SelectOfScalar:
     return select(NodeDataBase, UserNodeMapper). \
         join(UserNodeMapper, isouter=True). \
         where(NodeDataBase.id == node_id)
+
+
+def get_select_partners(partners_id: str) -> Select | SelectOfScalar:
+    return select(PartnersMapper).where(PartnersMapper.id == partners_id)

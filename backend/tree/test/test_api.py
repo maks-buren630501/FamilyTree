@@ -234,6 +234,42 @@ class TreeApiTestCase(IsolatedAsyncioTestCase):
         node = json.loads(response_node.content)
         self.assertEqual(node['partners'][0]['partner_id'], str(node_2))
 
+    async def test_update_partners(self):
+        user = await Crud.save(UserDataBase(username='pushkin', password=hash_password('1ewuvn3i2344'), email='pushkin@mail.com', active=True))
+        node_1 = await Crud.save(NodeDataBase(name='Andrey', family_name='Bichkoy', author_id=user))
+        node_2 = await Crud.save(NodeDataBase(name='Irina', family_name='Bichkoy', author_id=user))
+        node_3 = await Crud.save(NodeDataBase(name='Olga', family_name='Trifonova', author_id=user))
+        partners = await Crud.save(PartnersMapper(husband_id=node_1, wife_id=node_2, wedding_date=datetime.date(2000, 1, 1)))
+        data = {'wife_id': str(node_3)}
+        auth_data = {'username': 'pushkin', 'password': '1ewuvn3i2344'}
+        async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
+            response_login = await ac.post(f"/authentication/login", json=auth_data)
+        token = json.loads(response_login.content)['access_token']
+        async with AsyncClient(app=app, base_url="http://127.0.0.1", headers={'x-access-token': token}) as ac:
+            response = await ac.put(f"/tree/partner/{partners}", json=data)
+            response_node = await ac.get(f"/tree/{node_1}")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response_node.status_code, 200)
+        node = json.loads(response_node.content)
+        self.assertEqual(node['partners'][0]['partner_id'], str(node_3))
+
+    async def test_delete_partners(self):
+        user = await Crud.save(UserDataBase(username='pushkin', password=hash_password('1ewuvn3i2344'), email='pushkin@mail.com', active=True))
+        node_1 = await Crud.save(NodeDataBase(name='Andrey', family_name='Bichkoy', author_id=user))
+        node_2 = await Crud.save(NodeDataBase(name='Irina', family_name='Bichkoy', author_id=user))
+        partners = await Crud.save(PartnersMapper(husband_id=node_1, wife_id=node_2, wedding_date=datetime.date(2000, 1, 1)))
+        auth_data = {'username': 'pushkin', 'password': '1ewuvn3i2344'}
+        async with AsyncClient(app=app, base_url="http://127.0.0.1") as ac:
+            response_login = await ac.post(f"/authentication/login", json=auth_data)
+        token = json.loads(response_login.content)['access_token']
+        async with AsyncClient(app=app, base_url="http://127.0.0.1", headers={'x-access-token': token}) as ac:
+            response = await ac.delete(f"/tree/partner/{partners}")
+            response_node = await ac.get(f"/tree/{node_1}")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_node.status_code, 200)
+        node = json.loads(response_node.content)
+        self.assertEqual(len(node['partners']), 0)
+
 
 
 
